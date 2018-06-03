@@ -1,11 +1,13 @@
 package io.github.intellij.dlanguage.psi.impl;
 
+import static io.github.intellij.dlanguage.psi.DlangTypes.OP_BRACES_LEFT;
+import static io.github.intellij.dlanguage.psi.DlangTypes.OP_COLON;
+
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
-import io.github.intellij.dlanguage.psi.DLanguageArrayMemberInitialization;
 import io.github.intellij.dlanguage.psi.DLanguageArrayMemberInitialization;
 import io.github.intellij.dlanguage.psi.DLanguageAssignExpression;
 import io.github.intellij.dlanguage.psi.DLanguageNonVoidInitializer;
@@ -13,11 +15,10 @@ import io.github.intellij.dlanguage.psi.DlangVisitor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import static io.github.intellij.dlanguage.psi.DlangTypes.OP_BRACES_LEFT;
-import static io.github.intellij.dlanguage.psi.DlangTypes.OP_COLON;
 
+public class DLanguageArrayMemberInitializationImpl extends ASTWrapperPsiElement implements
+    DLanguageArrayMemberInitialization {
 
-public class DLanguageArrayMemberInitializationImpl extends ASTWrapperPsiElement implements DLanguageArrayMemberInitialization {
     public DLanguageArrayMemberInitializationImpl(ASTNode node) {
         super(node);
     }
@@ -27,8 +28,11 @@ public class DLanguageArrayMemberInitializationImpl extends ASTWrapperPsiElement
     }
 
     public void accept(@NotNull PsiElementVisitor visitor) {
-        if (visitor instanceof DlangVisitor) accept((DlangVisitor) visitor);
-        else super.accept(visitor);
+        if (visitor instanceof DlangVisitor) {
+            accept((DlangVisitor) visitor);
+        } else {
+            super.accept(visitor);
+        }
     }
 
     @Nullable

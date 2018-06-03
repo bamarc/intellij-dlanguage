@@ -5,9 +5,10 @@ import org.jetbrains.annotations.Nullable;
 
 
 public interface DLanguageLastCatch extends PsiElement {
-    @Nullable
-    PsiElement getKW_CATCH();
 
     @Nullable
-    DLanguageStatementNoCaseNoDefault getStatementNoCaseNoDefault();
+    public PsiElement getKW_CATCH();
+
+    @Nullable
+    public DLanguageStatementNoCaseNoDefault getStatementNoCaseNoDefault();
 }

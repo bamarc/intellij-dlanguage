@@ -1,38 +1,40 @@
 package io.github.intellij.dlanguage.psi;
 
 import com.intellij.psi.PsiElement;
+import io.github.intellij.dlanguage.psi.named.DlangIdentifier;
 import org.jetbrains.annotations.Nullable;
 
 
 public interface DLanguageIsExpression extends PsiElement {
-    @Nullable
-    PsiElement getOP_PAR_RIGHT();
 
     @Nullable
-    PsiElement getOP_PAR_LEFT();
+    public PsiElement getOP_PAR_RIGHT();
 
     @Nullable
-    DLanguageType getType();
+    public PsiElement getOP_PAR_LEFT();
 
     @Nullable
-    DlangIdentifier getIdentifier();
+    public DLanguageType getType();
 
     @Nullable
-    DLanguageTypeSpecialization getTypeSpecialization();
+    public DlangIdentifier getIdentifier();
 
     @Nullable
-    DLanguageTemplateParameterList getTemplateParameterList();
+    public DLanguageTypeSpecialization getTypeSpecialization();
 
     @Nullable
-    PsiElement getOP_COMMA();
+    public DLanguageTemplateParameterList getTemplateParameterList();
 
     @Nullable
-    PsiElement getOP_COLON();
+    public PsiElement getOP_COMMA();
 
     @Nullable
-    PsiElement getOP_EQ();
+    public PsiElement getOP_COLON();
 
     @Nullable
-    PsiElement getKW_IS();
+    public PsiElement getOP_EQ();
+
+    @Nullable
+    public PsiElement getKW_IS();
 
 }

@@ -1,22 +1,22 @@
 package io.github.intellij.dlanguage.psi.impl;
 
+import static io.github.intellij.dlanguage.psi.DlangTypes.OP_BOOL_AND;
+
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
-import io.github.intellij.dlanguage.psi.DLanguageOrExpression;
-import io.github.intellij.dlanguage.psi.DlangTypes;
 import io.github.intellij.dlanguage.psi.DLanguageAndAndExpression;
 import io.github.intellij.dlanguage.psi.DLanguageOrExpression;
 import io.github.intellij.dlanguage.psi.DlangVisitor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import static io.github.intellij.dlanguage.psi.DlangTypes.OP_BOOL_AND;
 
+public class DLanguageAndAndExpressionImpl extends ASTWrapperPsiElement implements
+    DLanguageAndAndExpression {
 
-public class DLanguageAndAndExpressionImpl extends ASTWrapperPsiElement implements DLanguageAndAndExpression {
     public DLanguageAndAndExpressionImpl(ASTNode node) {
         super(node);
     }
@@ -26,8 +26,11 @@ public class DLanguageAndAndExpressionImpl extends ASTWrapperPsiElement implemen
     }
 
     public void accept(@NotNull PsiElementVisitor visitor) {
-        if (visitor instanceof DlangVisitor) accept((DlangVisitor) visitor);
-        else super.accept(visitor);
+        if (visitor instanceof DlangVisitor) {
+            accept((DlangVisitor) visitor);
+        } else {
+            super.accept(visitor);
+        }
     }
 
     @Nullable
@@ -42,7 +45,7 @@ public class DLanguageAndAndExpressionImpl extends ASTWrapperPsiElement implemen
 
     @Nullable
     public PsiElement getOP_BOOL_AND() {
-        return findChildByType(DlangTypes.OP_BOOL_AND);
+        return findChildByType(OP_BOOL_AND);
     }
 
 }

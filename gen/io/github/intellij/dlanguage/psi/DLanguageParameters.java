@@ -1,13 +1,14 @@
 package io.github.intellij.dlanguage.psi;
 
 import com.intellij.psi.PsiElement;
+import io.github.intellij.dlanguage.psi.named.DlangParameter;
+import java.util.List;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-
 
 public interface DLanguageParameters extends PsiElement {
+
     @NotNull
     List<PsiElement> getOP_COMMAs();
 
@@ -15,7 +16,7 @@ public interface DLanguageParameters extends PsiElement {
     PsiElement getOP_TRIPLEDOT();
 
     @NotNull
-    List<DLanguageParameter> getParameters();
+    List<DlangParameter> getParameters();
 
     @Nullable
     PsiElement getOP_PAR_LEFT();

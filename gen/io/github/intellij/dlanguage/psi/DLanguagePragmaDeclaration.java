@@ -5,10 +5,11 @@ import org.jetbrains.annotations.Nullable;
 
 
 public interface DLanguagePragmaDeclaration extends PsiElement {
-    @Nullable
-    DLanguagePragmaExpression getPragmaExpression();
 
     @Nullable
-    PsiElement getOP_SCOLON();
+    public DLanguagePragmaExpression getPragmaExpression();
+
+    @Nullable
+    public PsiElement getOP_SCOLON();
 
 }

@@ -10,6 +10,7 @@ import com.intellij.psi.PsiElement
 import io.github.intellij.dlanguage.icons.addVisibilityToIcon
 import io.github.intellij.dlanguage.presentation.*
 import io.github.intellij.dlanguage.utils.*
+import java.util.*
 
 class DStructureViewElement(val element: PsiElement) : StructureViewTreeElement,
     Navigatable by (element as NavigatablePsiElement)
@@ -18,11 +19,14 @@ class DStructureViewElement(val element: PsiElement) : StructureViewTreeElement,
         val allowedAttributes = arrayOf("const", "enum", "immutable")
 
         if (element.autoDeclaration != null) {
-            val attribute = element.autoDeclaration?.storageClass?.text
+            val attributes = element.autoDeclaration?.storageClasss!!
 
-            if (attribute in allowedAttributes) {
-                return attribute
+            for (attribute in attributes) {
+                if (attribute.text in allowedAttributes) {
+                    return attribute.text
+                }
             }
+
         } else {
             var attributes = ""
 

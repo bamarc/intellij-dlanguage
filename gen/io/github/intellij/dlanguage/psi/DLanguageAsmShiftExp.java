@@ -5,19 +5,20 @@ import org.jetbrains.annotations.Nullable;
 
 
 public interface DLanguageAsmShiftExp extends PsiElement {
-    @Nullable
-    DLanguageAsmShiftExp getAsmShiftExp();
 
     @Nullable
-    DLanguageAsmAddExp getAsmAddExp();
+    public DLanguageAsmShiftExp getAsmShiftExp();
 
     @Nullable
-    PsiElement getOP_SH_LEFT();
+    public DLanguageAsmAddExp getAsmAddExp();
 
     @Nullable
-    PsiElement getOP_SH_RIGHT();
+    public PsiElement getOP_SH_LEFT();
 
     @Nullable
-    PsiElement getOP_USH_RIGHT();
+    public PsiElement getOP_SH_RIGHT();
+
+    @Nullable
+    public PsiElement getOP_USH_RIGHT();
 
 }

@@ -12,7 +12,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 
-public class DLanguageDeclarationOrStatementImpl extends ASTWrapperPsiElement implements DLanguageDeclarationOrStatement {
+public class DLanguageDeclarationOrStatementImpl extends ASTWrapperPsiElement implements
+    DLanguageDeclarationOrStatement {
+
     public DLanguageDeclarationOrStatementImpl(ASTNode node) {
         super(node);
     }
@@ -22,8 +24,11 @@ public class DLanguageDeclarationOrStatementImpl extends ASTWrapperPsiElement im
     }
 
     public void accept(@NotNull PsiElementVisitor visitor) {
-        if (visitor instanceof DlangVisitor) accept((DlangVisitor) visitor);
-        else super.accept(visitor);
+        if (visitor instanceof DlangVisitor) {
+            accept((DlangVisitor) visitor);
+        } else {
+            super.accept(visitor);
+        }
     }
 
     @Nullable

@@ -1,22 +1,26 @@
 package io.github.intellij.dlanguage.psi.impl;
 
+import static io.github.intellij.dlanguage.psi.DlangTypes.KW_CLASS;
+import static io.github.intellij.dlanguage.psi.DlangTypes.KW_NEW;
+
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
-import io.github.intellij.dlanguage.psi.*;
-import io.github.intellij.dlanguage.psi.*;
+import io.github.intellij.dlanguage.psi.DLanguageArguments;
+import io.github.intellij.dlanguage.psi.DLanguageBaseClassList;
+import io.github.intellij.dlanguage.psi.DLanguageNewAnonClassExpression;
+import io.github.intellij.dlanguage.psi.DLanguageStructBody;
+import io.github.intellij.dlanguage.psi.DlangVisitor;
+import java.util.List;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
 
-import static io.github.intellij.dlanguage.psi.DlangTypes.KW_CLASS;
-import static io.github.intellij.dlanguage.psi.DlangTypes.KW_NEW;
+public class DLanguageNewAnonClassExpressionImpl extends ASTWrapperPsiElement implements
+    DLanguageNewAnonClassExpression {
 
-
-public class DLanguageNewAnonClassExpressionImpl extends ASTWrapperPsiElement implements DLanguageNewAnonClassExpression {
     public DLanguageNewAnonClassExpressionImpl(ASTNode node) {
         super(node);
     }
@@ -26,8 +30,11 @@ public class DLanguageNewAnonClassExpressionImpl extends ASTWrapperPsiElement im
     }
 
     public void accept(@NotNull PsiElementVisitor visitor) {
-        if (visitor instanceof DlangVisitor) accept((DlangVisitor) visitor);
-        else super.accept(visitor);
+        if (visitor instanceof DlangVisitor) {
+            accept((DlangVisitor) visitor);
+        } else {
+            super.accept(visitor);
+        }
     }
 
     @Nullable

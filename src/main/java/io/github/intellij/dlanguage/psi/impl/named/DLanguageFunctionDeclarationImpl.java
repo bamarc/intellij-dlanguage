@@ -7,9 +7,16 @@ import com.intellij.psi.ResolveState;
 import com.intellij.psi.scope.PsiScopeProcessor;
 import com.intellij.psi.stubs.IStubElementType;
 import com.intellij.psi.util.PsiTreeUtil;
-import io.github.intellij.dlanguage.psi.*;
-import io.github.intellij.dlanguage.stubs.DlangFunctionDeclarationStub;
-import io.github.intellij.dlanguage.psi.*;
+import io.github.intellij.dlanguage.psi.DLanguageConstraint;
+import io.github.intellij.dlanguage.psi.DLanguageFunctionBody;
+import io.github.intellij.dlanguage.psi.DLanguageMemberFunctionAttribute;
+import io.github.intellij.dlanguage.psi.DLanguageParameters;
+import io.github.intellij.dlanguage.psi.DLanguageStorageClass;
+import io.github.intellij.dlanguage.psi.DLanguageTemplateParameters;
+import io.github.intellij.dlanguage.psi.DLanguageType;
+import io.github.intellij.dlanguage.psi.named.DlangFunctionDeclaration;
+import io.github.intellij.dlanguage.psi.named.DlangIdentifier;
+import io.github.intellij.dlanguage.psi.DlangVisitor;
 import io.github.intellij.dlanguage.psi.impl.DNamedStubbedPsiElementBase;
 import io.github.intellij.dlanguage.resolve.ScopeProcessorImpl;
 import io.github.intellij.dlanguage.stubs.DlangFunctionDeclarationStub;
@@ -20,7 +27,8 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Created by francis on 7/14/2017.
  */
-public class DLanguageFunctionDeclarationImpl extends DNamedStubbedPsiElementBase<DlangFunctionDeclarationStub> implements DLanguageFunctionDeclaration {
+public class DLanguageFunctionDeclarationImpl extends
+    DNamedStubbedPsiElementBase<DlangFunctionDeclarationStub> implements DlangFunctionDeclaration {
 
     public DLanguageFunctionDeclarationImpl(@NotNull final DlangFunctionDeclarationStub stub, final IStubElementType nodeType) {
         super(stub, nodeType);
@@ -31,7 +39,7 @@ public class DLanguageFunctionDeclarationImpl extends DNamedStubbedPsiElementBas
     }
 
     public void accept(@NotNull DlangVisitor visitor) {
-        visitor.visitFunctionDeclaration(this);
+        visitor.visitDNamedElement(this);visitor.visitFunctionDeclaration(this);
     }
 
     public void accept(@NotNull PsiElementVisitor visitor) {
@@ -84,9 +92,16 @@ public class DLanguageFunctionDeclarationImpl extends DNamedStubbedPsiElementBas
         return PsiTreeUtil.getChildOfType(this, DLanguageFunctionBody.class);
     }
 
+    @NotNull
     @Override
     public List<DLanguageMemberFunctionAttribute> getMemberFunctionAttributes() {
         return PsiTreeUtil.getChildrenOfTypeAsList(this, DLanguageMemberFunctionAttribute.class);
+    }
+
+    @NotNull
+    @Override
+    public List<DLanguageStorageClass> getStorageClasses() {
+        return PsiTreeUtil.getChildrenOfTypeAsList(this, DLanguageStorageClass.class);
     }
 
     @Override

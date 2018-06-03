@@ -1,13 +1,25 @@
 package io.github.intellij.dlanguage.psi;
 
 import com.intellij.psi.PsiElement;
+import io.github.intellij.dlanguage.psi.named.DLanguageVersionSpecification;
+import io.github.intellij.dlanguage.psi.named.DlangConstructor;
+import io.github.intellij.dlanguage.psi.named.DlangDestructor;
+import io.github.intellij.dlanguage.psi.named.DlangEnumDeclaration;
+import io.github.intellij.dlanguage.psi.named.DlangFunctionDeclaration;
+import io.github.intellij.dlanguage.psi.named.DlangSharedStaticConstructor;
+import io.github.intellij.dlanguage.psi.named.DlangSharedStaticDestructor;
+import io.github.intellij.dlanguage.psi.named.DlangStaticConstructor;
+import io.github.intellij.dlanguage.psi.named.DlangStaticDestructor;
+import io.github.intellij.dlanguage.psi.named.DlangStructDeclaration;
+import io.github.intellij.dlanguage.psi.named.DlangTemplateDeclaration;
+import io.github.intellij.dlanguage.psi.named.DlangUnionDeclaration;
+import java.util.List;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-
 
 public interface DLanguageDeclaration extends PsiElement {
+
     @Nullable
     DLanguageAliasThisDeclaration getAliasThisDeclaration();
 
@@ -21,10 +33,10 @@ public interface DLanguageDeclaration extends PsiElement {
     DLanguageConditionalDeclaration getConditionalDeclaration();
 
     @Nullable
-    DLanguageConstructor getConstructor();
+    DlangConstructor getConstructor();
 
     @Nullable
-    DLanguageDestructor getDestructor();
+    DlangDestructor getDestructor();
 
     @Nullable
     DLanguageAnonymousEnumDeclaration getAnonymousEnumDeclaration();
@@ -51,16 +63,16 @@ public interface DLanguageDeclaration extends PsiElement {
     DLanguagePragmaDeclaration getPragmaDeclaration();
 
     @Nullable
-    DLanguageSharedStaticConstructor getSharedStaticConstructor();
+    DlangSharedStaticConstructor getSharedStaticConstructor();
 
     @Nullable
-    DLanguageSharedStaticDestructor getSharedStaticDestructor();
+    DlangSharedStaticDestructor getSharedStaticDestructor();
 
     @Nullable
-    DLanguageStaticConstructor getStaticConstructor();
+    DlangStaticConstructor getStaticConstructor();
 
     @Nullable
-    DLanguageStaticDestructor getStaticDestructor();
+    DlangStaticDestructor getStaticDestructor();
 
     @Nullable
     DLanguageStaticAssertDeclaration getStaticAssertDeclaration();
@@ -99,7 +111,7 @@ public interface DLanguageDeclaration extends PsiElement {
     PsiElement getOP_BRACES_LEFT();
 
     @Nullable
-    DLanguageFunctionDeclaration getFunctionDeclaration();
+    DlangFunctionDeclaration getFunctionDeclaration();
 
     @Nullable
     DLanguageVariableDeclaration getVariableDeclaration();

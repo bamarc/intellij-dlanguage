@@ -5,15 +5,15 @@ import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import io.github.intellij.dlanguage.psi.DLanguageAsmTypePrefix;
-import io.github.intellij.dlanguage.psi.DLanguageAsmTypePrefix;
-import io.github.intellij.dlanguage.psi.DlangIdentifier;
+import io.github.intellij.dlanguage.psi.named.DlangIdentifier;
 import io.github.intellij.dlanguage.psi.DlangVisitor;
+import java.util.List;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
 
+public class DLanguageAsmTypePrefixImpl extends ASTWrapperPsiElement implements
+    DLanguageAsmTypePrefix {
 
-public class DLanguageAsmTypePrefixImpl extends ASTWrapperPsiElement implements DLanguageAsmTypePrefix {
     public DLanguageAsmTypePrefixImpl(ASTNode node) {
         super(node);
     }
@@ -23,8 +23,11 @@ public class DLanguageAsmTypePrefixImpl extends ASTWrapperPsiElement implements 
     }
 
     public void accept(@NotNull PsiElementVisitor visitor) {
-        if (visitor instanceof DlangVisitor) accept((DlangVisitor) visitor);
-        else super.accept(visitor);
+        if (visitor instanceof DlangVisitor) {
+            accept((DlangVisitor) visitor);
+        } else {
+            super.accept(visitor);
+        }
     }
 
     @NotNull

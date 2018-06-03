@@ -5,22 +5,23 @@ import org.jetbrains.annotations.Nullable;
 
 
 public interface DLanguageAsmPrimaryExp extends PsiElement {
-    @Nullable
-    PsiElement getFLOAT_LITERAL();
 
     @Nullable
-    PsiElement getINTEGER_LITERAL();
+    public PsiElement getFLOAT_LITERAL();
 
     @Nullable
-    DLanguageRegister getRegister();
+    public PsiElement getINTEGER_LITERAL();
 
     @Nullable
-    DLanguageAsmExp getAsmExp();
+    public DLanguageRegister getRegister();
 
     @Nullable
-    DLanguageIdentifierChain getIdentifierChain();
+    public DLanguageAsmExp getAsmExp();
 
     @Nullable
-    PsiElement getOP_DOLLAR();
+    public DLanguageIdentifierChain getIdentifierChain();
+
+    @Nullable
+    public PsiElement getOP_DOLLAR();
 
 }

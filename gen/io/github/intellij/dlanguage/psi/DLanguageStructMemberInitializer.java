@@ -1,16 +1,18 @@
 package io.github.intellij.dlanguage.psi;
 
 import com.intellij.psi.PsiElement;
+import io.github.intellij.dlanguage.psi.named.DlangIdentifier;
 import org.jetbrains.annotations.Nullable;
 
 
 public interface DLanguageStructMemberInitializer extends PsiElement {
-    @Nullable
-    DlangIdentifier getIdentifier();
 
     @Nullable
-    PsiElement getOP_COLON();
+    public DlangIdentifier getIdentifier();
 
     @Nullable
-    DLanguageNonVoidInitializer getNonVoidInitializer();
+    public PsiElement getOP_COLON();
+
+    @Nullable
+    public DLanguageNonVoidInitializer getNonVoidInitializer();
 }

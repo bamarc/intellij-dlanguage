@@ -5,13 +5,14 @@ import org.jetbrains.annotations.Nullable;
 
 
 public interface DLanguageFunctionAttribute extends PsiElement {
-    @Nullable
-    DLanguageAtAttribute getAtAttribute();
 
     @Nullable
-    PsiElement getKW_PURE();
+    public DLanguageAtAttribute getAtAttribute();
 
     @Nullable
-    PsiElement getKW_NOTHROW();
+    public PsiElement getKW_PURE();
+
+    @Nullable
+    public PsiElement getKW_NOTHROW();
 
 }

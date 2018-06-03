@@ -5,6 +5,7 @@ import org.jetbrains.annotations.Nullable;
 
 
 public interface DLanguageTemplateValueParameterDefault extends PsiElement {
+
     @Nullable
     PsiElement getOP_EQ();
 

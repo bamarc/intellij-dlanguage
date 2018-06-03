@@ -27,6 +27,7 @@ import io.github.intellij.dlanguage.settings.ToolKey;
 import io.github.intellij.dlanguage.utils.DToolsNotificationListener;
 import org.jetbrains.annotations.NotNull;
 
+import java.nio.file.Paths;
 import java.util.Arrays;
 
 import static io.github.intellij.dlanguage.utils.DUtil.isNotNullOrEmpty;
@@ -90,6 +91,9 @@ public class DlangRunDubState extends CommandLineState {
         if (StringUtil.isEmptyOrSpaces(dubPath)) {
             throw new ExecutionException("DUB executable is not specified");
         }
+        if (!Paths.get(dubPath).toFile().canExecute()) {
+            throw new ExecutionException("DUB is not configured correctly");
+        }
 
         final VirtualFile sourcesRoot = getSourceRoot(module);
         final GeneralCommandLine cmd = new GeneralCommandLine();
@@ -125,7 +129,7 @@ public class DlangRunDubState extends CommandLineState {
             if (config.isCbCoverage()) {
                 cmd.addParameter("--coverage");
             }
-            if (config.getTfMainFile() != null) {
+            if (StringUtil.isNotEmpty(config.getTfMainFile())) {
                 cmd.addParameter("--main-file");
                 cmd.addParameter(config.getTfMainFile());
             }

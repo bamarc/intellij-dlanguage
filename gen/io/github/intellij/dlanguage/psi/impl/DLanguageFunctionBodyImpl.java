@@ -4,13 +4,19 @@ import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
-import io.github.intellij.dlanguage.psi.*;
-import io.github.intellij.dlanguage.psi.*;
+import io.github.intellij.dlanguage.psi.DLanguageBlockStatement;
+import io.github.intellij.dlanguage.psi.DLanguageBodyStatement;
+import io.github.intellij.dlanguage.psi.DLanguageFunctionBody;
+import io.github.intellij.dlanguage.psi.DLanguageInStatement;
+import io.github.intellij.dlanguage.psi.DLanguageOutStatement;
+import io.github.intellij.dlanguage.psi.DlangVisitor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 
-public class DLanguageFunctionBodyImpl extends ASTWrapperPsiElement implements DLanguageFunctionBody {
+public class DLanguageFunctionBodyImpl extends ASTWrapperPsiElement implements
+    DLanguageFunctionBody {
+
     public DLanguageFunctionBodyImpl(ASTNode node) {
         super(node);
     }
@@ -20,8 +26,11 @@ public class DLanguageFunctionBodyImpl extends ASTWrapperPsiElement implements D
     }
 
     public void accept(@NotNull PsiElementVisitor visitor) {
-        if (visitor instanceof DlangVisitor) accept((DlangVisitor) visitor);
-        else super.accept(visitor);
+        if (visitor instanceof DlangVisitor) {
+            accept((DlangVisitor) visitor);
+        } else {
+            super.accept(visitor);
+        }
     }
 
     @Nullable

@@ -5,9 +5,10 @@ import org.jetbrains.annotations.Nullable;
 
 
 public interface DLanguageAttributeDeclaration extends PsiElement {
-    @Nullable
-    PsiElement getOP_COLON();
 
     @Nullable
-    DLanguageAttribute getAttribute();
+    public PsiElement getOP_COLON();
+
+    @Nullable
+    public DLanguageAttribute getAttribute();
 }

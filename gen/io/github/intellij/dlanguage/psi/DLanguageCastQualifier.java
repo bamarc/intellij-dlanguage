@@ -5,16 +5,17 @@ import org.jetbrains.annotations.Nullable;
 
 
 public interface DLanguageCastQualifier extends PsiElement {
-    @Nullable
-    PsiElement getKW_IMMUTABLE();
 
     @Nullable
-    PsiElement getKW_CONST();
+    public PsiElement getKW_IMMUTABLE();
 
     @Nullable
-    PsiElement getKW_SHARED();
+    public PsiElement getKW_CONST();
 
     @Nullable
-    PsiElement getKW_INOUT();
+    public PsiElement getKW_SHARED();
+
+    @Nullable
+    public PsiElement getKW_INOUT();
 
 }

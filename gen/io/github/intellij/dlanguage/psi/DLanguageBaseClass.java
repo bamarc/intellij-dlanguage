@@ -5,12 +5,13 @@ import org.jetbrains.annotations.Nullable;
 
 
 public interface DLanguageBaseClass extends PsiElement {
-    @Nullable
-    DLanguageTypeofExpression getTypeofExpression();
 
     @Nullable
-    PsiElement getOP_DOT();
+    public DLanguageTypeofExpression getTypeofExpression();
 
     @Nullable
-    DLanguageIdentifierOrTemplateChain getIdentifierOrTemplateChain();
+    public PsiElement getOP_DOT();
+
+    @Nullable
+    public DLanguageIdentifierOrTemplateChain getIdentifierOrTemplateChain();
 }

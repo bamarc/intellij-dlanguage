@@ -1,29 +1,31 @@
 package io.github.intellij.dlanguage.psi;
 
 import com.intellij.psi.PsiElement;
+import io.github.intellij.dlanguage.psi.named.DlangIdentifier;
 import org.jetbrains.annotations.Nullable;
 
 
 public interface DLanguageLinkageAttribute extends PsiElement {
-    @Nullable
-    DLanguageIdentifierChain getIdentifierChain();
 
     @Nullable
-    DlangIdentifier getIdentifier();
+    public DLanguageIdentifierChain getIdentifierChain();
 
     @Nullable
-    PsiElement getOP_PAR_RIGHT();
+    public DlangIdentifier getIdentifier();
 
     @Nullable
-    PsiElement getOP_PAR_LEFT();
+    public PsiElement getOP_PAR_RIGHT();
 
     @Nullable
-    PsiElement getOP_PLUS_PLUS();
+    public PsiElement getOP_PAR_LEFT();
 
     @Nullable
-    PsiElement getKW_EXTERN();
+    public PsiElement getOP_PLUS_PLUS();
 
     @Nullable
-    PsiElement getOP_COMMA();
+    public PsiElement getKW_EXTERN();
+
+    @Nullable
+    public PsiElement getOP_COMMA();
 
 }

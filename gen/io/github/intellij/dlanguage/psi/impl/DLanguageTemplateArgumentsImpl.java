@@ -1,11 +1,14 @@
 package io.github.intellij.dlanguage.psi.impl;
 
+import static io.github.intellij.dlanguage.psi.DlangTypes.OP_NOT;
+import static io.github.intellij.dlanguage.psi.DlangTypes.OP_PAR_LEFT;
+import static io.github.intellij.dlanguage.psi.DlangTypes.OP_PAR_RIGHT;
+
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
-import io.github.intellij.dlanguage.psi.DLanguageTemplateArgumentList;
 import io.github.intellij.dlanguage.psi.DLanguageTemplateArgumentList;
 import io.github.intellij.dlanguage.psi.DLanguageTemplateArguments;
 import io.github.intellij.dlanguage.psi.DLanguageTemplateSingleArgument;
@@ -13,10 +16,10 @@ import io.github.intellij.dlanguage.psi.DlangVisitor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import static io.github.intellij.dlanguage.psi.DlangTypes.*;
 
+public class DLanguageTemplateArgumentsImpl extends ASTWrapperPsiElement implements
+    DLanguageTemplateArguments {
 
-public class DLanguageTemplateArgumentsImpl extends ASTWrapperPsiElement implements DLanguageTemplateArguments {
     public DLanguageTemplateArgumentsImpl(ASTNode node) {
         super(node);
     }
@@ -26,8 +29,11 @@ public class DLanguageTemplateArgumentsImpl extends ASTWrapperPsiElement impleme
     }
 
     public void accept(@NotNull PsiElementVisitor visitor) {
-        if (visitor instanceof DlangVisitor) accept((DlangVisitor) visitor);
-        else super.accept(visitor);
+        if (visitor instanceof DlangVisitor) {
+            accept((DlangVisitor) visitor);
+        } else {
+            super.accept(visitor);
+        }
     }
 
     @Nullable

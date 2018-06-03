@@ -1,13 +1,14 @@
 package io.github.intellij.dlanguage.psi;
 
 import com.intellij.psi.PsiElement;
+import io.github.intellij.dlanguage.psi.named.DlangForeachType;
+import java.util.List;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-
 
 public interface DLanguageForeachStatement extends PsiElement {
+
     @Nullable
     PsiElement getKW_FOREACH();
 
@@ -30,7 +31,7 @@ public interface DLanguageForeachStatement extends PsiElement {
     PsiElement getOP_DDOT();
 
     @Nullable
-    DLanguageForeachType getForeachType();
+    DlangForeachType getForeachType();
 
     @Nullable
     DLanguageForeachTypeList getForeachTypeList();

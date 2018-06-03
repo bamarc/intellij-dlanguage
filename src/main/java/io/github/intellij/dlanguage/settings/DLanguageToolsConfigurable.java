@@ -1,5 +1,6 @@
 package io.github.intellij.dlanguage.settings;
 
+import com.intellij.ide.ui.search.SearchableOptionsRegistrar;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.options.ConfigurationException;
@@ -10,18 +11,24 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.ui.RawCommandLineEditor;
 import com.intellij.ui.TextAccessor;
 import com.intellij.util.messages.Topic;
+import io.github.intellij.dlanguage.messagebus.ToolChangeListener;
+import io.github.intellij.dlanguage.messagebus.Topics;
 import io.github.intellij.dlanguage.utils.ExecUtil;
 import io.github.intellij.dlanguage.utils.GuiUtil;
+import java.util.Arrays;
+import java.util.List;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
-import java.util.Arrays;
-import java.util.List;
-
 /**
- * The "D Tools" option in Preferences->Project Settings.
+ * The "D Tools" option in: Settings -> Languages & Frameworks -> D Tools.
  */
 public class DLanguageToolsConfigurable implements SearchableConfigurable {
 
@@ -59,35 +66,47 @@ public class DLanguageToolsConfigurable implements SearchableConfigurable {
     private JButton GDBAutoFind;
     private RawCommandLineEditor GDBFlags;
     private JTextField GDBVersion;
+    private JTabbedPane tabbedPane1;
+    private JCheckBox chkNativeCodeCompletion;
+    private JCheckBox disableFormatterSyntaxErrorCheckBox;
 
     public DLanguageToolsConfigurable(@NotNull final Project project) {
         this.propertiesComponent = PropertiesComponent.getInstance();
+
+        final SearchableOptionsRegistrar sor = SearchableOptionsRegistrar.getInstance();
+        sor.addOption("dub", null, "dub", D_TOOLS_ID, D_TOOLS_ID);
+        sor.addOption("dscanner", null, "dscanner", D_TOOLS_ID, D_TOOLS_ID);
+        sor.addOption("dcd", null, "dcd", D_TOOLS_ID, D_TOOLS_ID);
+        sor.addOption("dfmt", null, "dfmt", D_TOOLS_ID, D_TOOLS_ID);
+        sor.addOption("dfix", null, "dfix", D_TOOLS_ID, D_TOOLS_ID);
+        sor.addOption("gdb", null, "gdb", D_TOOLS_ID, D_TOOLS_ID);
+
         properties = Arrays.asList(
             new Tool(project, "dub", ToolKey.DUB_KEY, dubPath, dubFlags,
-                dubAutoFind, dubVersion),
+                dubAutoFind, dubVersion, "--version", Topics.DUB_TOOL_CHANGE),
             new Tool(project, "dscanner", ToolKey.DSCANNER_KEY, dscannerPath, dscannerFlags,
-                dscannerAutoFind, dscannerVersion),
+                dscannerAutoFind, dscannerVersion, "--version", Topics.DSCANNER_TOOL_CHANGE),
             new Tool(project, "dcd-server", ToolKey.DCD_SERVER_KEY, dcdPath, dcdFlags,
-                dcdAutoFind, dcdVersion, "--version", SettingsChangeNotifier.DCD_TOPIC),
+                dcdAutoFind, dcdVersion, "--version", Topics.DCD_SERVER_TOOL_CHANGE),
             new Tool(project, "dcd-client", ToolKey.DCD_CLIENT_KEY, dcdClientPath, dcdClientFlags,
-                dcdClientAutoFind, dcdClientVersion),
+                dcdClientAutoFind, dcdClientVersion, "--version", Topics.DCD_CLIENT_TOOL_CHANGE),
             new Tool(project, "dfmt", ToolKey.DFORMAT_KEY, dFormatPath, dFormatFlags,
-                dFormatAutoFind, dFormatVersion),
+                dFormatAutoFind, dFormatVersion, "--version", Topics.DFMT_TOOL_CHANGE),
             new Tool(project, "dfix", ToolKey.DFIX_KEY, dFixPath, dFixFlags,
-                dFixAutoFind, dFixVersion),
+                dFixAutoFind, dFixVersion, "--version", Topics.DFIX_TOOL_CHANGE),
             new Tool(project, "gdb", ToolKey.GDB_KEY, GDBPath, GDBFlags,
-                GDBAutoFind, GDBVersion)
+                GDBAutoFind, GDBVersion, "--version", Topics.GDB_TOOL_CHANGE)
         );
     }
 
     /**
-     * Heuristically finds the version number. Current implementation is the
-     * identity function since cabal plays nice.
+     * Heuristically finds the version number. Current implementation is the identity function since
+     * cabal plays nice.
      */
     public static String getVersion(final String cmd, final String versionFlag) {
         final @Nullable String versionOutput = ExecUtil.readCommandLine(null, cmd, versionFlag);
 
-        if(StringUtil.isNotEmpty(versionOutput)) {
+        if (StringUtil.isNotEmpty(versionOutput)) {
             final String version = versionOutput.split("\n")[0].trim();
             LOG.info(String.format("%s [%s]", cmd, version));
             return version;
@@ -103,9 +122,20 @@ public class DLanguageToolsConfigurable implements SearchableConfigurable {
 
     @Nullable
     @Override
-    public Runnable enableSearch(final String s) {
-        // TODO
-        return null;
+    public Runnable enableSearch(final String option) {
+        return () -> {
+            if(StringUtil.isNotEmpty(option)) {
+                final int tabCount = tabbedPane1.getTabCount();
+
+                for (int i = 0; i < tabCount-1; i++) {
+                    final String title = tabbedPane1.getTitleAt(i);
+                    if(title.toLowerCase().contains(option.toLowerCase())) {
+                        tabbedPane1.setSelectedIndex(i);
+                    }
+                }
+            }
+
+        };
     }
 
     @Nls
@@ -136,14 +166,18 @@ public class DLanguageToolsConfigurable implements SearchableConfigurable {
                 return true;
             }
         }
-        return false;
+        return
+            propertiesComponent.getBoolean("USE_NATIVE_CODE_COMPLETION") != chkNativeCodeCompletion
+                .isSelected()
+                || propertiesComponent.getBoolean("DISABLE_SYNTAX_ERROR_FORMATTER_WARNING")
+                != disableFormatterSyntaxErrorCheckBox.isSelected();
     }
 
     /**
      * Triggered when the user pushes the apply button.
      */
     @Override
-    public void apply() throws ConfigurationException {
+    public void apply() {
         updateVersionInfoFields();
         saveState();
     }
@@ -180,6 +214,10 @@ public class DLanguageToolsConfigurable implements SearchableConfigurable {
         for (final Property property : properties) {
             property.saveState();
         }
+        propertiesComponent
+            .setValue("USE_NATIVE_CODE_COMPLETION", chkNativeCodeCompletion.isSelected());
+        propertiesComponent.setValue("DISABLE_SYNTAX_ERROR_FORMATTER_WARNING",
+            disableFormatterSyntaxErrorCheckBox.isSelected());
     }
 
     /**
@@ -190,9 +228,20 @@ public class DLanguageToolsConfigurable implements SearchableConfigurable {
         for (final Property property : properties) {
             property.restoreState();
         }
+        if (!propertiesComponent.isValueSet("USE_NATIVE_CODE_COMPLETION")) {
+            propertiesComponent.setValue("USE_NATIVE_CODE_COMPLETION", false);
+        }
+        if (!propertiesComponent.isValueSet("DISABLE_SYNTAX_ERROR_FORMATTER_WARNING")) {
+            propertiesComponent.setValue("DISABLE_SYNTAX_ERROR_FORMATTER_WARNING", false);
+        }
+        chkNativeCodeCompletion
+            .setSelected(propertiesComponent.getBoolean("USE_NATIVE_CODE_COMPLETION"));
+        disableFormatterSyntaxErrorCheckBox
+            .setSelected(propertiesComponent.getBoolean("DISABLE_SYNTAX_ERROR_FORMATTER_WARNING"));
     }
 
     interface Property {
+
         boolean isModified();
 
         void saveState();
@@ -201,6 +250,7 @@ public class DLanguageToolsConfigurable implements SearchableConfigurable {
     }
 
     interface Versioned {
+
         void updateVersion();
     }
 
@@ -208,6 +258,7 @@ public class DLanguageToolsConfigurable implements SearchableConfigurable {
      * Manages the state of a PropertyComponent and its respective field.
      */
     class PropertyField implements Property {
+
         public final TextAccessor field;
         public final String propertyKey;
         public String oldValue;
@@ -216,7 +267,8 @@ public class DLanguageToolsConfigurable implements SearchableConfigurable {
             this(propertyKey, field, "");
         }
 
-        PropertyField(@NotNull final String propertyKey, @NotNull final TextAccessor field, @NotNull final String defaultValue) {
+        PropertyField(@NotNull final String propertyKey, @NotNull final TextAccessor field,
+            @NotNull final String defaultValue) {
             this.propertyKey = propertyKey;
             this.field = field;
             this.oldValue = propertiesComponent.getValue(propertyKey, defaultValue);
@@ -240,6 +292,7 @@ public class DLanguageToolsConfigurable implements SearchableConfigurable {
      * Manages the group of fields which reside to a particular tool.
      */
     class Tool implements Property, Versioned {
+
         public final Project project;
         public final String command;
         public final ToolKey key;
@@ -249,26 +302,14 @@ public class DLanguageToolsConfigurable implements SearchableConfigurable {
         public final String versionParam;
         public final JButton autoFindButton;
         public final List<PropertyField> propertyFields;
-        public final
-        @Nullable
-        Topic<SettingsChangeNotifier> topic;
-        private final
-        @Nullable
-        SettingsChangeNotifier publisher;
+        public final Topic<ToolChangeListener> topic;
+        private final ToolChangeListener publisher;
 
-        Tool(final Project project, final String command, final ToolKey key, final TextFieldWithBrowseButton pathField,
-             final RawCommandLineEditor flagsField, final JButton autoFindButton, final JTextField versionField) {
-            this(project, command, key, pathField, flagsField, autoFindButton, versionField, "--version");
-        }
-
-        Tool(final Project project, final String command, final ToolKey key, final TextFieldWithBrowseButton pathField,
-             final RawCommandLineEditor flagsField, final JButton autoFindButton, final JTextField versionField, final String versionParam) {
-            this(project, command, key, pathField, flagsField, autoFindButton, versionField, versionParam, null);
-        }
-
-        Tool(final Project project, final String command, final ToolKey key, final TextFieldWithBrowseButton pathField,
-             final RawCommandLineEditor flagsField, final JButton autoFindButton, final JTextField versionField, final String versionParam,
-             @Nullable final Topic<SettingsChangeNotifier> topic) {
+        Tool(final Project project, final String command, final ToolKey key,
+            final TextFieldWithBrowseButton pathField,
+            final RawCommandLineEditor flagsField, final JButton autoFindButton,
+            final JTextField versionField,
+            final String versionParam, final Topic<ToolChangeListener> topic) {
             this.project = project;
             this.command = command;
             this.key = key;
@@ -291,7 +332,8 @@ public class DLanguageToolsConfigurable implements SearchableConfigurable {
 
         public void updateVersion() {
             final String pathText = pathField.getText();
-            final String version = StringUtil.isEmpty(pathText) ? "" : getVersion(pathText, versionParam);
+            final String version =
+                StringUtil.isEmpty(pathText) ? "" : getVersion(pathText, versionParam);
             versionField.setText(version);
         }
 
@@ -301,7 +343,8 @@ public class DLanguageToolsConfigurable implements SearchableConfigurable {
 
         public void saveState() {
             if (isModified() && publisher != null) {
-                publisher.onSettingsChanged(new ToolSettings(pathField.getText(), flagsField.getText()));
+                publisher.onToolSettingsChanged(
+                    new ToolSettings(pathField.getText(), flagsField.getText()));
             }
             for (final PropertyField propertyField : propertyFields) {
                 propertyField.saveState();

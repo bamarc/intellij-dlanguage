@@ -5,16 +5,15 @@ import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import io.github.intellij.dlanguage.psi.DLanguageImportBind;
-import io.github.intellij.dlanguage.psi.DlangIdentifier;
-import io.github.intellij.dlanguage.psi.DlangIdentifier;
-import io.github.intellij.dlanguage.psi.DLanguageImportBind;
 import io.github.intellij.dlanguage.psi.DLanguageNamedImportBind;
+import io.github.intellij.dlanguage.psi.named.DlangIdentifier;
 import io.github.intellij.dlanguage.psi.DlangVisitor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 
 public class DLanguageImportBindImpl extends ASTWrapperPsiElement implements DLanguageImportBind {
+
     public DLanguageImportBindImpl(ASTNode node) {
         super(node);
     }
@@ -24,8 +23,11 @@ public class DLanguageImportBindImpl extends ASTWrapperPsiElement implements DLa
     }
 
     public void accept(@NotNull PsiElementVisitor visitor) {
-        if (visitor instanceof DlangVisitor) accept((DlangVisitor) visitor);
-        else super.accept(visitor);
+        if (visitor instanceof DlangVisitor) {
+            accept((DlangVisitor) visitor);
+        } else {
+            super.accept(visitor);
+        }
     }
 
     @Nullable

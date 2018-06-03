@@ -8,18 +8,18 @@ import com.intellij.execution.configurations.ConfigurationType;
 import com.intellij.execution.configurations.ModuleBasedConfiguration;
 import com.intellij.execution.impl.RunConfigurationBeforeRunProvider;
 import com.intellij.execution.impl.RunManagerImpl;
-import com.intellij.ide.util.projectWizard.JavaModuleBuilder;
+import com.intellij.ide.util.projectWizard.ModuleBuilder;
 import com.intellij.openapi.extensions.Extensions;
 import com.intellij.openapi.module.ModuleType;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.SdkTypeId;
+import com.intellij.openapi.roots.ContentEntry;
 import com.intellij.openapi.roots.ModifiableRootModel;
 import com.intellij.openapi.util.Pair;
-import io.github.intellij.dlanguage.DlangBundle;
-import io.github.intellij.dlanguage.DlangSdkType;
-import io.github.intellij.dlanguage.run.DlangRunAppConfigurationType;
-import io.github.intellij.dlanguage.run.DlangRunDmdConfigurationType;
+import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.openapi.vfs.LocalFileSystem;
+import com.intellij.openapi.vfs.VirtualFile;
 import io.github.intellij.dlanguage.DlangBundle;
 import io.github.intellij.dlanguage.DlangSdkType;
 import io.github.intellij.dlanguage.icons.DlangIcons;
@@ -33,40 +33,33 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DlangModuleBuilder extends JavaModuleBuilder {
+public class DlangModuleBuilder extends ModuleBuilder {
 
-    public static final String DLANG_GROUP_NAME = "D Language";
-    public static final String RUN_CONFIG_NAME = "Run D App";
-    public static final String COMPILE_CONFIG_NAME = "Compile with DMD";
+    private static final String DLANG_GROUP_NAME = "D Language";
+    private static final String RUN_CONFIG_NAME = "Run D App";
+    private static final String COMPILE_CONFIG_NAME = "Compile with DMD";
+
     private final String myBuilderId;
     private final String myPresentableName;
     private final String myDescription;
-    private final Icon myBigIcon;
 
     private List<Pair<String, String>> sourcePaths;
 
     public DlangModuleBuilder() {
-        this("DLangDmdApp", DlangBundle.INSTANCE.message("module.title"), DlangBundle.INSTANCE.message("module.description"), null);
+        this("DLangDmdApp", DlangBundle.INSTANCE.message("module.title"), DlangBundle.INSTANCE.message("module.description"));
     }
 
     protected DlangModuleBuilder(final String builderId,
                                  final String presentableName,
-                                 final String description,
-                                 final Icon bigIcon) {
+                                 final String description) {
         myBuilderId = builderId;
         myPresentableName = presentableName;
         myDescription = description;
-        myBigIcon = bigIcon;
     }
 
     @Override
     public String getBuilderId() {
         return myBuilderId;
-    }
-
-    //    @Override
-    public Icon getBigIcon() {
-        return myBigIcon;
     }
 
     @Override
@@ -96,7 +89,24 @@ public class DlangModuleBuilder extends JavaModuleBuilder {
 
     @Override
     public void setupRootModel(final ModifiableRootModel rootModel) throws ConfigurationException {
-        super.setupRootModel(rootModel);
+        if (myJdk != null) {
+            rootModel.setSdk(myJdk);
+        } else {
+            rootModel.inheritSdk();
+        }
+
+        final ContentEntry contentEntry = doAddContentEntry(rootModel);
+        if (contentEntry != null) {
+            for (final Pair<String, String> sourcePath : getSourcePaths()) {
+                final String path = sourcePath.first;
+                final VirtualFile sourceRoot
+                    = LocalFileSystem.getInstance().refreshAndFindFileByPath(FileUtil.toSystemIndependentName(path));
+                if (sourceRoot != null) {
+                    contentEntry.addSourceFolder(sourceRoot, false, sourcePath.second);
+                }
+            }
+        }
+
         final Project project = rootModel.getProject();
         final RunManagerImpl runManager = RunManagerImpl.getInstanceImpl(project);
 
@@ -139,7 +149,6 @@ public class DlangModuleBuilder extends JavaModuleBuilder {
 
     /* By default sources are located in {WORKING_DIR}/source folder. */
     @NotNull
-    @Override
     public List<Pair<String, String>> getSourcePaths() {
         if (sourcePaths == null) {
             final List<Pair<String, String>> paths = new ArrayList<>();

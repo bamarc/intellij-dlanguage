@@ -9,6 +9,7 @@ import kotlin.jvm.internal.Ref;
 import io.github.intellij.dlanguage.psi.DlangTokenType;
 import io.github.intellij.dlanguage.psi.DlangTokenType;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -82,7 +83,11 @@ class DLangParser {
 
     @Deprecated
     final int MAX_ERRORS = 200;
-    private final Token.IdType[] stringLiteralsArray = {tok("stringLiteral"), tok("wstringLiteral"), tok("dstringLiteral"), tok("tokenstringLiteral")};
+    //A standard array initializer here was causing issues with java attempting to init a static array before the static initializer?
+    // See issues #350,#348,343
+    private final Token.IdType[] stringLiteralsArray = Arrays
+        .asList(tok("stringLiteral"), tok("wstringLiteral"), tok("dstringLiteral"),
+            tok("tokenstringLiteral")).toArray(new IdType[4]);
     private final Set<Token.IdType> literals = Sets.newHashSet(tok("dstringLiteral"), tok("stringLiteral"), tok("wstringLiteral"), tok("tokenstringLiteral"), tok("characterLiteral"), tok("true"), tok("false"), tok("null"), tok("$"), tok("doubleLiteral"), tok("floatLiteral"), tok("idoubleLiteral"), tok("ifloatLiteral"), tok("intLiteral"), tok("longLiteral"), tok("realLiteral"), tok("irealLiteral"), tok("uintLiteral"), tok("ulongLiteral"), tok("__DATE__"), tok("__TIME__"), tok("__TIMESTAMP__"), tok("__VENDOR__"), tok("__VERSION__"), tok("__FILE__"), tok("__FILE_FULL_PATH__"), tok("__LINE__"), tok("__MODULE__"), tok("__FUNCTION__"), tok("__PRETTY_FUNCTION__"));
     private final Set<Token.IdType> basicTypes = Sets.newHashSet(tok("int"), tok("bool"), tok("byte"), tok("cdouble"), tok("cent"), tok("cfloat"), tok("char"), tok("creal"), tok("dchar"), tok("double"), tok("float"), tok("idouble"), tok("ifloat"), tok("ireal"), tok("long"), tok("real"), tok("short"), tok("ubyte"), tok("ucent"), tok("uint"), tok("ulong"), tok("ushort"), tok("void"), tok("wchar"));
     private final Set<Token.IdType> Protections = Sets.newHashSet(tok("export"), tok("package"),
@@ -394,6 +399,8 @@ class DLangParser {
                 return UNITTEST;
             case "Vector":
                 return VECTOR;
+            case "StaticForeachStatement":
+                return STATIC_FOREACH_STATEMENT;
             default:
                 throw new IllegalArgumentException("unrecognized thing to parse:" + nodeType);
         }
@@ -522,8 +529,8 @@ class DLangParser {
         if (currentIs(tok("("))) {
             final Token t = peekPastParens();
             if (t != null) {
-                if (t.type.equals(tok("=>")) || t.type.equals(tok("{")) || isMemberFunctionAttribute(t.type))
-                    return true;
+                return t.type.equals(tok("=>")) || t.type.equals(tok("{"))
+                    || isMemberFunctionAttribute(t.type);
             }
         }
         return false;
@@ -1854,7 +1861,10 @@ class DLangParser {
      */
     boolean parseBodyStatement() {
         final Marker m = enter_section_modified(builder);
-        final boolean result = simpleParse("BodyStatement", tok("body"), "blockStatement|parseBlockStatement");
+        if (currentIs(tok("body")) || currentIs(tok("do"))) {
+            advance();
+        }
+        final boolean result = simpleParse("BodyStatement", "blockStatement|parseBlockStatement");
         exit_section_modified(builder, m, BODY_STATEMENT, result);
         return result;
     }
@@ -3738,6 +3748,11 @@ class DLangParser {
         return true;
     }
 
+    boolean parseStaticForeachStatement() {
+        return simpleParse("StaticForeachStatement", tok("static"),
+            "foreachStatement|parseForeachStatement");
+    }
+
     /**
      * Parses a ForeachType
      * <p>
@@ -3847,7 +3862,7 @@ class DLangParser {
                 cleanup(m, FUNCTION_BODY);
                 return false;
             }
-        } else if (currentIsOneOf(tok("in"), tok("out"), tok("body"))) {
+        } else if (currentIsOneOf(tok("in"), tok("out"), tok("body"), tok("do"))) {
             if (currentIs(tok("in"))) {
                 if (!parseInStatement()) {
                     cleanup(m, FUNCTION_BODY);
@@ -3871,13 +3886,13 @@ class DLangParser {
             }
             // Allow function bodies without body statements because this is
             // valid inside of interfaces.
-            if (currentIs(tok("body")))
+            if (currentIs(tok("body")) || currentIs(tok("do")))
                 if (!parseBodyStatement()) {
                     cleanup(m, FUNCTION_BODY);
                     return false;
                 }
         } else {
-            error("'in', 'out', 'body', or block statement expected");
+            error("'in', 'out', 'body', 'do' , or block statement expected");
             exit_section_modified(builder, m, FUNCTION_BODY, true);
             return false;
         }
@@ -4047,7 +4062,7 @@ class DLangParser {
         final Marker m = enter_section_modified(builder);
         if (currentIsOneOf(tok("function"), tok("delegate"))) {
             advance();
-            if (!currentIsOneOf(tok("("), tok("in"), tok("body"),
+            if (!currentIsOneOf(tok("("), tok("in"), tok("body"), tok("do"),
                 tok("out"), tok("{"), tok("=>")))
                 if (!parseType().first) {
                     cleanup(m, FUNCTION_LITERAL_EXPRESSION);
@@ -5696,7 +5711,9 @@ class DLangParser {
                     cleanup(m, PRIMARY_EXPRESSION);
                     return false;
                 }
-        } else if (i.equals(tok("function")) || i.equals(tok("delegate")) || i.equals(tok("{")) || i.equals(tok("in")) || i.equals(tok("out")) || i.equals(tok("body"))) {
+        } else if (i.equals(tok("function")) || i.equals(tok("delegate")) || i.equals(tok("{")) || i
+            .equals(tok("in")) || i.equals(tok("out")) || i.equals(tok("body")) || i
+            .equals(tok("do"))) {
             if (!parseFunctionLiteralExpression()) {
                 cleanup(m, PRIMARY_EXPRESSION);
                 return false;
@@ -6231,6 +6248,11 @@ class DLangParser {
                 }
             } else if (peekIs(tok("assert"))) {
                 if (!parseStaticAssertStatement()) {
+                    cleanup(m, STATEMENT_NO_CASE_NO_DEFAULT);
+                    return false;
+                }
+            } else if (peekIs(tok("foreach")) || peekIs(tok("foreach_reverse"))) {
+                if (!parseStaticForeachStatement()) {
                     cleanup(m, STATEMENT_NO_CASE_NO_DEFAULT);
                     return false;
                 }
@@ -8265,11 +8287,15 @@ class DLangParser {
         return moreTokens() && isMemberFunctionAttribute(current().type);
     }
 
-    private boolean parseLeftAssocBinaryExpression(final Ref.BooleanRef operatorWasMatched, final String ExpressionType, final String ExpressionPartType, final Token.IdType... operators) {
+    private boolean parseLeftAssocBinaryExpression(final Ref.BooleanRef operatorWasMatched,
+        final String ExpressionType, final String ExpressionPartType,
+        @NotNull final Token.IdType... operators) {
         return parseLeftAssocBinaryExpression(operatorWasMatched, ExpressionType, ExpressionPartType, false, operators);
     }
 
-    private boolean parseLeftAssocBinaryExpression(final Ref.BooleanRef operatorWasMatched, final String ExpressionType, final String ExpressionPartType, final boolean part, final Token.IdType... operators)//(alias ExpressionType, alias ExpressionPartType, Operators ...)(ExpressionNode part = null)
+    private boolean parseLeftAssocBinaryExpression(final Ref.BooleanRef operatorWasMatched,
+        final String ExpressionType, final String ExpressionPartType, final boolean part,
+        @NotNull final Token.IdType... operators)//(alias ExpressionType, alias ExpressionPartType, Operators ...)(ExpressionNode part = null)
     {
         operatorWasMatched.element = false;
         final boolean node;
@@ -8475,9 +8501,11 @@ class DLangParser {
             return null;
         }
     }
+
     /**
      * Returns: the _current token
      */
+    @Nullable
     private Token current() {
         return tokens[index];
     }
@@ -8489,7 +8517,8 @@ class DLangParser {
         return tokens[index - 1];
     }
 
-    private Token.IdType tok(final String tok) {
+    private @NotNull
+    Token.IdType tok(final String tok) {
         if (tokenTypeIndex.get(tok) != null) {
             return tokenTypeIndex.get(tok);
         }
@@ -8500,15 +8529,37 @@ class DLangParser {
             tokenTypeIndex.put("identifier", new Token.IdType(ID));
             return tokenTypeIndex.get("identifier");
         }
+        //the below if statements exsist to catch cases where the static initializer did not work correctly
+        // See issues #350,#348,343
         if (tok.equals("tokenstringLiteral")) {
             tokenTypeIndex.put("tokenstringLiteral", new Token.IdType(ID));
             return tokenTypeIndex.get("tokenstringLiteral");
         }
 
+        if (tok.equals("wstringLiteral")) {
+            tokenTypeIndex.put("wstringLiteral", new Token.IdType(ID));
+            return tokenTypeIndex.get("wstringLiteral");
+        }
+
+        if (tok.equals("dstringLiteral")) {
+            tokenTypeIndex.put("dstringLiteral", new Token.IdType(ID));
+            return tokenTypeIndex.get("dstringLiteral");
+        }
+
+        if (tok.equals("scriptLine")) {
+            tokenTypeIndex.put("scriptLine", new Token.IdType(ID));
+            return tokenTypeIndex.get("scriptLine");
+        }
+
+        if (tok.equals("stringLiteral")) {
+            tokenTypeIndex.put("stringLiteral", new Token.IdType(ID));
+            return tokenTypeIndex.get("stringLiteral");
+        }
+
         if (matchingTypes.length != 1) {
             throw new IllegalArgumentException("string:" + tok);
         }
-        final Token.IdType result = new Token.IdType(matchingTypes[0]);
+        final @NotNull Token.IdType result = new Token.IdType(matchingTypes[0]);
         tokenTypeIndex.put(tok, result);
         return result;
     }
@@ -8557,14 +8608,19 @@ class DLangParser {
     /**
      * Returns: true if the current token is one of the given types
      */
-    private boolean currentIsOneOf(final Token.IdType... types) {
-        if (index >= tokens.length)
-            return false;
-        for (final Token.IdType type : types) {
-            if (type.equals(current().type)) {
-                return true;
+    private boolean currentIsOneOf(final @NotNull Token.IdType... types) {
+        if (index >= tokens.length) return false;
+
+        final Token curr = current();
+
+        if(curr != null) {
+            for (final @NotNull Token.IdType type : types) {
+                if (type.equals(curr.type)) {
+                    return true;
+                }
             }
         }
+
         return false;
 
 //        return canFind(types, current().type);
@@ -8626,15 +8682,16 @@ class DLangParser {
         if (!tokenCheck(")")) {
             return false;
         }
-        while (moreTokens() && !currentIsOneOf(tok("{"), tok("in"), tok("out"), tok("body"), tok(";"))) {
+        while (moreTokens() && !currentIsOneOf(tok("{"), tok("in"), tok("out"), tok("body"),
+            tok("do"), tok(";"))) {
             if (!(parseMemberFunctionAttribute())) {
                 return false;
             }
         }
         if (currentIs(tok(";")))
             advance();
-        else if (!parseFunctionBody()) {
-            return false;
+        else {
+            return parseFunctionBody();
         }
         return true;
     }

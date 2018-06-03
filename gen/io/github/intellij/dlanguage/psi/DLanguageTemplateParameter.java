@@ -7,7 +7,9 @@ import io.github.intellij.dlanguage.stubs.DlangTemplateParameterStub;
 import org.jetbrains.annotations.Nullable;
 
 
-public interface DLanguageTemplateParameter extends PsiElement, DNamedElement, StubBasedPsiElement<DlangTemplateParameterStub> {
+public interface DLanguageTemplateParameter extends PsiElement, DNamedElement,
+    StubBasedPsiElement<DlangTemplateParameterStub> {
+
     @Nullable
     DLanguageTemplateAliasParameter getTemplateAliasParameter();
 

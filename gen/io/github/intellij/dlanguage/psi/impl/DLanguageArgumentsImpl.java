@@ -1,5 +1,8 @@
 package io.github.intellij.dlanguage.psi.impl;
 
+import static io.github.intellij.dlanguage.psi.DlangTypes.OP_PAR_LEFT;
+import static io.github.intellij.dlanguage.psi.DlangTypes.OP_PAR_RIGHT;
+
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
@@ -11,11 +14,9 @@ import io.github.intellij.dlanguage.psi.DlangVisitor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import static io.github.intellij.dlanguage.psi.DlangTypes.OP_PAR_LEFT;
-import static io.github.intellij.dlanguage.psi.DlangTypes.OP_PAR_RIGHT;
-
 
 public class DLanguageArgumentsImpl extends ASTWrapperPsiElement implements DLanguageArguments {
+
     public DLanguageArgumentsImpl(ASTNode node) {
         super(node);
     }
@@ -25,8 +26,11 @@ public class DLanguageArgumentsImpl extends ASTWrapperPsiElement implements DLan
     }
 
     public void accept(@NotNull PsiElementVisitor visitor) {
-        if (visitor instanceof DlangVisitor) accept((DlangVisitor) visitor);
-        else super.accept(visitor);
+        if (visitor instanceof DlangVisitor) {
+            accept((DlangVisitor) visitor);
+        } else {
+            super.accept(visitor);
+        }
     }
 
     @Nullable

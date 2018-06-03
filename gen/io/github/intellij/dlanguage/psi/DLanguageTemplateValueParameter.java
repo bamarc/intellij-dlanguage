@@ -1,22 +1,24 @@
 package io.github.intellij.dlanguage.psi;
 
 import com.intellij.psi.PsiElement;
+import io.github.intellij.dlanguage.psi.named.DlangIdentifier;
 import org.jetbrains.annotations.Nullable;
 
 
 public interface DLanguageTemplateValueParameter extends PsiElement {
-    @Nullable
-    DLanguageType getType();
 
     @Nullable
-    DlangIdentifier getIdentifier();
+    public DLanguageType getType();
 
     @Nullable
-    PsiElement getOP_COLON();
+    public DlangIdentifier getIdentifier();
 
     @Nullable
-    DLanguageAssignExpression getAssignExpression();
+    public PsiElement getOP_COLON();
 
     @Nullable
-    DLanguageTemplateValueParameterDefault getTemplateValueParameterDefault();
+    public DLanguageAssignExpression getAssignExpression();
+
+    @Nullable
+    public DLanguageTemplateValueParameterDefault getTemplateValueParameterDefault();
 }

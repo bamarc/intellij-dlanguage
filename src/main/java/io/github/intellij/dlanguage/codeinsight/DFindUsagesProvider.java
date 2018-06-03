@@ -10,9 +10,22 @@ import com.intellij.psi.PsiNamedElement;
 import com.intellij.psi.tree.TokenSet;
 import com.intellij.usageView.UsageViewLongNameLocation;
 import com.intellij.usageView.UsageViewNodeTextLocation;
-import io.github.intellij.dlanguage.psi.*;
 import io.github.intellij.dlanguage.DLanguageLexerAdapter;
-import io.github.intellij.dlanguage.psi.*;
+import io.github.intellij.dlanguage.psi.DLanguageClassDeclaration;
+import io.github.intellij.dlanguage.psi.DLanguageIfCondition;
+import io.github.intellij.dlanguage.psi.DLanguageInterfaceDeclaration;
+import io.github.intellij.dlanguage.psi.DLanguageTemplateParameter;
+import io.github.intellij.dlanguage.psi.DLanguageVariableDeclaration;
+import io.github.intellij.dlanguage.psi.DTokenSets;
+import io.github.intellij.dlanguage.psi.named.DlangCatch;
+import io.github.intellij.dlanguage.psi.named.DlangEnumDeclaration;
+import io.github.intellij.dlanguage.psi.named.DlangFunctionDeclaration;
+import io.github.intellij.dlanguage.psi.named.DlangIdentifier;
+import io.github.intellij.dlanguage.psi.named.DlangInterfaceOrClass;
+import io.github.intellij.dlanguage.psi.named.DlangParameter;
+import io.github.intellij.dlanguage.psi.named.DlangTemplateDeclaration;
+import io.github.intellij.dlanguage.psi.DlangTypes;
+import io.github.intellij.dlanguage.psi.named.DlangUnionDeclaration;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -48,7 +61,7 @@ public class DFindUsagesProvider implements FindUsagesProvider {
 //        return ElementDescriptionUtil.getElementDescription(element, UsageViewTypeLocation.INSTANCE);
 //        return "woops";
 
-        if (element instanceof DLanguageFunctionDeclaration) {
+        if (element instanceof DlangFunctionDeclaration) {
             return "Function";
         } else if (element instanceof DlangIdentifier) {
             return "Identifier";
@@ -67,13 +80,13 @@ public class DFindUsagesProvider implements FindUsagesProvider {
             return "Template Parameter";
         } else if (element instanceof DlangTemplateDeclaration) {
             return "Template";
-        } else if (element instanceof DLanguageParameter) {
+        } else if (element instanceof DlangParameter) {
             return "Parameter";
         } else if (element instanceof DlangUnionDeclaration) {
             return "Union";
         } else if (element instanceof DLanguageIfCondition) {
             return "Variable";
-        } else if (element instanceof DLanguageCatch) {
+        } else if (element instanceof DlangCatch) {
             return "Catch";
         } else if (element instanceof DLanguageVariableDeclaration) {
             return "Variable";

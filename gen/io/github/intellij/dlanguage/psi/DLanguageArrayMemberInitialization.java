@@ -5,16 +5,17 @@ import org.jetbrains.annotations.Nullable;
 
 
 public interface DLanguageArrayMemberInitialization extends PsiElement {
-    @Nullable
-    DLanguageAssignExpression getAssignExpression();
 
     @Nullable
-    PsiElement getOP_COLON();
+    public DLanguageAssignExpression getAssignExpression();
 
     @Nullable
-    DLanguageNonVoidInitializer getNonVoidInitializer();
+    public PsiElement getOP_COLON();
 
     @Nullable
-    PsiElement getOP_BRACES_LEFT();
+    public DLanguageNonVoidInitializer getNonVoidInitializer();
+
+    @Nullable
+    public PsiElement getOP_BRACES_LEFT();
 
 }

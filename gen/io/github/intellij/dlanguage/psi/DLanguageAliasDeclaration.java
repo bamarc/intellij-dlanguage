@@ -1,13 +1,14 @@
 package io.github.intellij.dlanguage.psi;
 
 import com.intellij.psi.PsiElement;
+import io.github.intellij.dlanguage.psi.named.DlangAliasInitializer;
+import java.util.List;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-
 
 public interface DLanguageAliasDeclaration extends PsiElement {
+
     @Nullable
     DLanguageIdentifierList getIdentifierList();
 
@@ -27,5 +28,5 @@ public interface DLanguageAliasDeclaration extends PsiElement {
     PsiElement getOP_SCOLON();
 
     @NotNull
-    List<DLanguageAliasInitializer> getAliasInitializers();
+    List<DlangAliasInitializer> getAliasInitializers();
 }

@@ -5,19 +5,20 @@ import org.jetbrains.annotations.Nullable;
 
 
 public interface DLanguageSynchronizedStatement extends PsiElement {
-    @Nullable
-    PsiElement getOP_PAR_RIGHT();
 
     @Nullable
-    PsiElement getOP_PAR_LEFT();
+    public PsiElement getOP_PAR_RIGHT();
 
     @Nullable
-    DLanguageExpression getExpression();
+    public PsiElement getOP_PAR_LEFT();
 
     @Nullable
-    DLanguageStatementNoCaseNoDefault getStatementNoCaseNoDefault();
+    public DLanguageExpression getExpression();
 
     @Nullable
-    PsiElement getKW_SYNCHRONIZED();
+    public DLanguageStatementNoCaseNoDefault getStatementNoCaseNoDefault();
+
+    @Nullable
+    public PsiElement getKW_SYNCHRONIZED();
 
 }

@@ -1,15 +1,17 @@
+
 package io.github.intellij.dlanguage.psi;
 
 import com.intellij.psi.PsiElement;
+import io.github.intellij.dlanguage.psi.named.DlangAutoDeclarationPart;
+import java.util.List;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-
 
 public interface DLanguageAutoDeclaration extends PsiElement {
-    @Nullable
-    DLanguageStorageClass getStorageClass();
+
+    @NotNull
+    List<DLanguageStorageClass> getStorageClasss();
 
     @NotNull
     List<PsiElement> getOP_COMMAs();
@@ -18,5 +20,5 @@ public interface DLanguageAutoDeclaration extends PsiElement {
     PsiElement getOP_SCOLON();
 
     @NotNull
-    List<DLanguageAutoDeclarationPart> getAutoDeclarationParts();
+    List<DlangAutoDeclarationPart> getAutoDeclarationParts();
 }

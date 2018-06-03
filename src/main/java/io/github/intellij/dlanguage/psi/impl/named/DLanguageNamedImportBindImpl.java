@@ -5,7 +5,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.stubs.IStubElementType;
 import com.intellij.psi.util.PsiTreeUtil;
-import io.github.intellij.dlanguage.psi.DlangIdentifier;
+import io.github.intellij.dlanguage.psi.named.DlangIdentifier;
 import io.github.intellij.dlanguage.psi.DLanguageNamedImportBind;
 import io.github.intellij.dlanguage.psi.DlangVisitor;
 import io.github.intellij.dlanguage.psi.impl.DNamedStubbedPsiElementBase;
@@ -27,7 +27,7 @@ public class DLanguageNamedImportBindImpl extends DNamedStubbedPsiElementBase<Dl
     }
 
     public void accept(@NotNull final DlangVisitor visitor) {
-        visitor.visitNamedImportBind(this);
+        visitor.visitDNamedElement(this);visitor.visitNamedImportBind(this);
     }
 
     public void accept(@NotNull final PsiElementVisitor visitor) {

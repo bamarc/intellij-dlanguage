@@ -5,6 +5,7 @@ import org.jetbrains.annotations.Nullable;
 
 
 public interface DLanguageStorageClass extends PsiElement {
+
     @Nullable
     DLanguageAtAttribute getAtAttribute();
 
@@ -25,6 +26,12 @@ public interface DLanguageStorageClass extends PsiElement {
 
     @Nullable
     PsiElement getKW_ABSTRACT();
+
+    @Nullable
+    PsiElement getKW_CONST();
+
+    @Nullable
+    PsiElement getKW_IMMUTABLE();
 
     @Nullable
     PsiElement getKW_AUTO();
