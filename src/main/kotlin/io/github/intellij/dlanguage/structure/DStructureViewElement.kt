@@ -9,8 +9,8 @@ import com.intellij.psi.NavigatablePsiElement
 import com.intellij.psi.PsiElement
 import io.github.intellij.dlanguage.icons.addVisibilityToIcon
 import io.github.intellij.dlanguage.presentation.*
-import io.github.intellij.dlanguage.psi.*
 import io.github.intellij.dlanguage.utils.*
+import java.util.*
 
 class DStructureViewElement(val element: PsiElement) : StructureViewTreeElement,
     Navigatable by (element as NavigatablePsiElement)
@@ -19,15 +19,18 @@ class DStructureViewElement(val element: PsiElement) : StructureViewTreeElement,
         val allowedAttributes = arrayOf("const", "enum", "immutable")
 
         if (element.autoDeclaration != null) {
-            val attribute = element.autoDeclaration?.storageClass?.text
+            val attributes = element.autoDeclaration?.storageClasss!!
 
-            if (attribute in allowedAttributes) {
-                return attribute
+            for (attribute in attributes) {
+                if (attribute.text in allowedAttributes) {
+                    return attribute.text
+                }
             }
+
         } else {
             var attributes = ""
 
-            (element.parent as? DLanguageDeclaration)?.attributes?.forEach {
+            (element.parent as? Declaration)?.attributes?.forEach {
                 if (it.text in allowedAttributes) {
                     attributes += it.text + " "
                 }
@@ -142,7 +145,7 @@ class DStructureViewElement(val element: PsiElement) : StructureViewTreeElement,
     }
 
     private fun findContentNode(psi: PsiElement?): List<PsiElement?> = when (psi) {
-        is DLanguageDeclaration -> {
+        is Declaration -> {
             val res = ArrayList<PsiElement?>()
 
             psi.children.forEach {
@@ -151,14 +154,16 @@ class DStructureViewElement(val element: PsiElement) : StructureViewTreeElement,
 
             res
         }
-        is DLanguageClassDeclaration -> listOf(psi.interfaceOrClass?.structBody)
-        is DLanguageInterfaceDeclaration -> listOf(psi.interfaceOrClass?.structBody)
+        is ClassDeclaration -> listOf(psi.interfaceOrClass?.structBody)
+        is InterfaceDeclaration -> listOf(psi.interfaceOrClass?.structBody)
         is FunctionDeclaration -> listOf(psi)
         is EnumDeclaration -> listOf(psi)
         is StructDeclaration -> listOf(psi.structBody)
+        is UnionDeclaration -> listOf(psi.structBody)
         is Constructor -> listOf(psi)
         is VariableDeclaration -> listOf(psi)
         is AliasDeclaration -> listOf(psi)
+        is MixinTemplateDeclaration -> listOf(psi.templateDeclaration)
         else -> emptyList()
     }
 

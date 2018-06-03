@@ -6,9 +6,7 @@ import com.intellij.psi.stubs.IStubElementType;
 import com.intellij.psi.util.PsiTreeUtil;
 import io.github.intellij.dlanguage.psi.*;
 import io.github.intellij.dlanguage.psi.impl.DNamedStubbedPsiElementBase;
-import io.github.intellij.dlanguage.stubs.DlangTemplateParameterStub;
-import io.github.intellij.dlanguage.psi.*;
-import io.github.intellij.dlanguage.psi.impl.DNamedStubbedPsiElementBase;
+import io.github.intellij.dlanguage.psi.named.DlangIdentifier;
 import io.github.intellij.dlanguage.stubs.DlangTemplateParameterStub;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -24,6 +22,7 @@ public class DLanguageTemplateParameterImpl extends DNamedStubbedPsiElementBase<
     }
 
     public void accept(@NotNull final DlangVisitor visitor) {
+        visitor.visitDNamedElement(this);
         visitor.visitTemplateParameter(this);
     }
 

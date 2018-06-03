@@ -4,12 +4,12 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.StubBasedPsiElement;
 import io.github.intellij.dlanguage.psi.interfaces.DCompositeElement;
 import io.github.intellij.dlanguage.stubs.DlangStaticDestructorStub;
-import io.github.intellij.dlanguage.psi.interfaces.DCompositeElement;
-import io.github.intellij.dlanguage.stubs.DlangStaticDestructorStub;
 import org.jetbrains.annotations.Nullable;
 
 
-public interface DLanguageStaticDestructor extends PsiElement, DCompositeElement, StubBasedPsiElement<DlangStaticDestructorStub> {
+public interface DLanguageStaticDestructor extends PsiElement, DCompositeElement,
+    StubBasedPsiElement<DlangStaticDestructorStub> {
+
     @Nullable
     PsiElement getOP_TILDA();
 

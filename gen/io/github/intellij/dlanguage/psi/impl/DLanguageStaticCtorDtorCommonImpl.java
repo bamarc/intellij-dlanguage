@@ -7,14 +7,13 @@ import com.intellij.psi.util.PsiTreeUtil;
 import io.github.intellij.dlanguage.psi.DLanguageFunctionBody;
 import io.github.intellij.dlanguage.psi.DLanguageStaticCtorDtorCommon;
 import io.github.intellij.dlanguage.psi.DlangVisitor;
-import io.github.intellij.dlanguage.psi.DLanguageFunctionBody;
-import io.github.intellij.dlanguage.psi.DLanguageStaticCtorDtorCommon;
-import io.github.intellij.dlanguage.psi.DlangVisitor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 
-public class DLanguageStaticCtorDtorCommonImpl extends ASTWrapperPsiElement implements DLanguageStaticCtorDtorCommon {
+public class DLanguageStaticCtorDtorCommonImpl extends ASTWrapperPsiElement implements
+    DLanguageStaticCtorDtorCommon {
+
     public DLanguageStaticCtorDtorCommonImpl(ASTNode node) {
         super(node);
     }
@@ -24,8 +23,11 @@ public class DLanguageStaticCtorDtorCommonImpl extends ASTWrapperPsiElement impl
     }
 
     public void accept(@NotNull PsiElementVisitor visitor) {
-        if (visitor instanceof DlangVisitor) accept((DlangVisitor) visitor);
-        else super.accept(visitor);
+        if (visitor instanceof DlangVisitor) {
+            accept((DlangVisitor) visitor);
+        } else {
+            super.accept(visitor);
+        }
     }
 
     @Nullable

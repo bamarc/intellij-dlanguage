@@ -1,9 +1,14 @@
 package io.github.intellij.dlanguage.features.formatter
 
 import com.google.common.collect.Sets.newHashSet
+import com.intellij.configurationStore.NOTIFICATION_GROUP_ID
 import com.intellij.formatting.*
 import com.intellij.formatting.alignment.AlignmentStrategy
+import com.intellij.ide.util.PropertiesComponent
 import com.intellij.lang.ASTNode
+import com.intellij.notification.Notification
+import com.intellij.notification.NotificationType
+import com.intellij.notification.Notifications
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.UserDataHolderBase
 import com.intellij.psi.PsiElement
@@ -12,10 +17,15 @@ import com.intellij.psi.TokenType
 import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.tree.TokenSet
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.containers.ContainerUtil
 import io.github.intellij.dlanguage.DLanguage
-import io.github.intellij.dlanguage.psi.*
+import io.github.intellij.dlanguage.psi.DLanguageDeclaration
+import io.github.intellij.dlanguage.psi.DLanguageDeclarationsAndStatements
+import io.github.intellij.dlanguage.psi.DLanguageStatement
 import io.github.intellij.dlanguage.psi.DlangTypes.*
+import io.github.intellij.dlanguage.psi.named.DLanguageModuleDeclaration
+import io.github.intellij.dlanguage.psi.references.DReference
 import io.github.intellij.dlanguage.utils.DUtil.getPrevSiblingOfType
 import io.github.intellij.dlanguage.utils.DeclarationOrStatement
 import java.util.*
@@ -86,6 +96,8 @@ class DFormattingModelBuilder : FormattingModelBuilder {
         }
 
         override fun getSubBlocks(): List<Block> {
+//            if(PsiTreeUtil.hasErrorElements(myNode.psi))
+//                return emptyList()
             if (mySubBlocks == null) {
                 mySubBlocks = buildSubBlocks()
             }
@@ -171,28 +183,34 @@ class DFormattingModelBuilder : FormattingModelBuilder {
         }
 
         override fun getSpacing(child1: Block?, child2: Block): Spacing? {
+            if (PsiTreeUtil.hasErrorElements(myNode.psi)) {
+                if (!PropertiesComponent.getInstance().getBoolean("DISABLE_SYNTAX_ERROR_FORMATTER_WARNING"))
+                    Notifications.Bus.notify(Notification(NOTIFICATION_GROUP_ID,
+                        "Formatter Ignored Code", "The builtin formatter ignored code that contained syntax errors, becuase formatting code with syntax errors is non-trivial. You can disable this notification in File > Settings > Languages & Frameworks > D Tools", NotificationType.INFORMATION))
+                return Spacing.getReadOnlySpacing()
+            }
             if (child1 is DFormattingBlock && child2 is DFormattingBlock) {
                 val n1 = child1.node
                 val n2 = child2.node
                 val psi1 = n1.psi
                 val psi2 = n2.psi
 
-                if (psi1 is io.github.intellij.dlanguage.psi.DLanguageDeclaration && psi2 is io.github.intellij.dlanguage.psi.DLanguageDeclaration) {
+                if (psi1 is DLanguageDeclaration && psi2 is DLanguageDeclaration) {
                     return lineBreak()
-                } else if (psi1.text == "{" && psi2 is io.github.intellij.dlanguage.psi.DLanguageDeclarationsAndStatements) {
+                } else if (psi1.text == "{" && psi2 is DLanguageDeclarationsAndStatements) {
                     return lineBreak()
-                } else if (psi1.text == "{" && psi2 is io.github.intellij.dlanguage.psi.DLanguageDeclaration) {
+                } else if (psi1.text == "{" && psi2 is DLanguageDeclaration) {
                     return lineBreak()
-                } else if (psi2.text == "}" && psi1 is io.github.intellij.dlanguage.psi.DLanguageDeclarationsAndStatements) {
+                } else if (psi2.text == "}" && psi1 is DLanguageDeclarationsAndStatements) {
                     return lineBreak()
-                } else if (psi2.text == "}" && psi1 is io.github.intellij.dlanguage.psi.DLanguageDeclaration) {
+                } else if (psi2.text == "}" && psi1 is DLanguageDeclaration) {
                     return lineBreak()
-                } else if (psi1 is io.github.intellij.dlanguage.psi.DLanguageModuleDeclaration && psi2 is io.github.intellij.dlanguage.psi.DLanguageDeclaration) {
+                } else if (psi1 is DLanguageModuleDeclaration && psi2 is DLanguageDeclaration) {
                     return lineBreak()
                 }
 
                 //
-                if (n1.elementType === OP_BRACES_LEFT && psi2 is io.github.intellij.dlanguage.psi.DLanguageStatement) {
+                if (n1.elementType === OP_BRACES_LEFT && psi2 is DLanguageStatement) {
                     return lineBreak()
                 }
                 //
@@ -212,7 +230,7 @@ class DFormattingModelBuilder : FormattingModelBuilder {
 
             val parentType = myNode.elementType
             if (parentType == BLOCK_STATEMENT || parentType == STRUCT_BODY || parentType == TEMPLATE_DECLARATION || parentType == CONDITIONAL_DECLARATION || parentType == CONDITIONAL_STATEMENT || parentType == DECLARATION) {
-                return ChildAttributes(Indent.getNormalIndent(),null)
+                return ChildAttributes(Indent.getNormalIndent(), null)
             }
 
             return ChildAttributes(childIndent, null)
@@ -245,10 +263,10 @@ class DFormattingModelBuilder : FormattingModelBuilder {
             )
 
             private fun isTopLevelDeclaration(element: PsiElement): Boolean {
-                return element is io.github.intellij.dlanguage.psi.DLanguageModuleDeclaration
+                return element is DLanguageModuleDeclaration
                     || element is io.github.intellij.dlanguage.psi.DLanguageImportDeclaration
-                    || element is io.github.intellij.dlanguage.psi.DLanguageDeclaration
-                    || element is io.github.intellij.dlanguage.psi.DLanguageStatement && element.getParent() is io.github.intellij.dlanguage.psi.DlangFile
+                    || element is DLanguageDeclaration
+                    || element is DLanguageStatement && element.getParent() is io.github.intellij.dlanguage.psi.DlangFile
             }
 
             private fun lineBreak(keepLineBreaks: Boolean = true): Spacing {

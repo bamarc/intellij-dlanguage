@@ -1,5 +1,9 @@
 package io.github.intellij.dlanguage.psi.impl.named;
 
+import static io.github.intellij.dlanguage.psi.DlangTypes.KW_CATCH;
+import static io.github.intellij.dlanguage.psi.DlangTypes.OP_PAR_LEFT;
+import static io.github.intellij.dlanguage.psi.DlangTypes.OP_PAR_RIGHT;
+
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
@@ -7,17 +11,19 @@ import com.intellij.psi.ResolveState;
 import com.intellij.psi.scope.PsiScopeProcessor;
 import com.intellij.psi.stubs.IStubElementType;
 import com.intellij.psi.util.PsiTreeUtil;
-import io.github.intellij.dlanguage.psi.*;
-import io.github.intellij.dlanguage.psi.*;
+import io.github.intellij.dlanguage.psi.DLanguageDeclarationOrStatement;
+import io.github.intellij.dlanguage.psi.DLanguageType;
+import io.github.intellij.dlanguage.psi.named.DlangCatch;
+import io.github.intellij.dlanguage.psi.named.DlangIdentifier;
+import io.github.intellij.dlanguage.psi.DlangVisitor;
 import io.github.intellij.dlanguage.psi.impl.DNamedStubbedPsiElementBase;
 import io.github.intellij.dlanguage.resolve.ScopeProcessorImpl;
 import io.github.intellij.dlanguage.stubs.DlangCatchStub;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import static io.github.intellij.dlanguage.psi.DlangTypes.*;
-
-public class DLanguageCatchImpl extends DNamedStubbedPsiElementBase<DlangCatchStub> implements DLanguageCatch {
+public class DLanguageCatchImpl extends DNamedStubbedPsiElementBase<DlangCatchStub> implements
+    DlangCatch {
 
     public DLanguageCatchImpl(final DlangCatchStub stub, final IStubElementType type) {
         super(stub, type);
@@ -28,7 +34,7 @@ public class DLanguageCatchImpl extends DNamedStubbedPsiElementBase<DlangCatchSt
     }
 
     public void accept(@NotNull final DlangVisitor visitor) {
-        visitor.visitCatch(this);
+        visitor.visitDNamedElement(this);visitor.visitCatch(this);
     }
 
     public void accept(@NotNull final PsiElementVisitor visitor) {

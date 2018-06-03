@@ -20,11 +20,10 @@ import io.github.intellij.dlanguage.psi.*
 import io.github.intellij.dlanguage.psi.DlangTypes.*
 import io.github.intellij.dlanguage.psi.ext.*
 import io.github.intellij.dlanguage.psi.impl.*
-import io.github.intellij.dlanguage.psi.impl.named.DlangEnumDeclarationImpl
 import io.github.intellij.dlanguage.psi.impl.named.DlangTemplateDeclarationImpl
+import io.github.intellij.dlanguage.psi.named.DlangTemplateDeclaration
 import io.github.intellij.dlanguage.utils.DeclarationOrStatement
 import io.github.intellij.dlanguage.utils.FunctionBody
-import io.github.intellij.dlanguage.utils.StructBody
 import java.util.ArrayList
 
 class DFoldingBuilder : FoldingBuilderEx(), DumbAware {
@@ -38,12 +37,13 @@ class DFoldingBuilder : FoldingBuilderEx(), DumbAware {
                 "/* ... */"
             }
             is DLanguageArrayInitializer -> "[...]"
-            is StructBody,
+            is DLanguageStructBody,
             is DLanguageBlockStatement,
             is DlangTemplateDeclaration,
             is DLanguageStructInitializer,
             is DLanguageAnonymousEnumDeclarationImpl,
-            is DlangEnumDeclaration -> "{...}"
+            is DLanguageEnumBody,
+            is DLanguageConditionalDeclaration -> "{...}"
             is DLanguageLinkageAttribute -> {
                 when {
                     psi.isExternal -> "{...}"
@@ -130,9 +130,12 @@ class DFoldingBuilder : FoldingBuilderEx(), DumbAware {
         override fun visitAnonymousEnumDeclaration(o: DLanguageAnonymousEnumDeclarationImpl) =
             foldBetween(o, o.leftBraces, o.rightBraces)
 
-        override fun visitEnumDeclaration(o: DlangEnumDeclarationImpl) {
+        override fun visitEnumBody(o: DLanguageEnumBodyImpl) =
             fold(o)
-        }
+
+        // version statement
+        override fun visitConditionalDeclaration(o: DLanguageConditionalDeclarationImpl) =
+            foldBetween(o, o.leftBraces, o.rightBraces)
 
         override fun visitComment(comment: PsiComment) {
             if (comment.prevSibling is PsiComment) return
@@ -187,6 +190,8 @@ class DFoldingBuilder : FoldingBuilderEx(), DumbAware {
 
             val offset = decl.importDeclaration?.kW_IMPORT?.textRange?.endOffset ?: return
             val range = TextRange(offset + 1, lastTrailing.textRange.endOffset)
+            if(range.length == 0)
+                return
             descriptors += FoldingDescriptor(importDecl, range)
         }
 
@@ -200,6 +205,11 @@ class DFoldingBuilder : FoldingBuilderEx(), DumbAware {
 
             val leftBrace = block.oP_BRACES_LEFT ?: return false
             val rightBrace = block.oP_BRACES_RIGHT ?: return false
+
+            // void foo() { \n
+            //     writeln("Hello world"); \n
+            // }
+            if (block.text.split('\n').size - 1 > 2) return false
 
             /// Get previous  whitespace if exist as start region
             val leftEl = leftBrace.parent?.parent?.prevSibling as? PsiWhiteSpace ?: leftBrace

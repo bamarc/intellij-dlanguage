@@ -5,13 +5,14 @@ import org.jetbrains.annotations.Nullable;
 
 
 public interface DLanguageXorExpression extends PsiElement {
-    @Nullable
-    DLanguageXorExpression getXorExpression();
 
     @Nullable
-    DLanguageAndExpression getAndExpression();
+    public DLanguageXorExpression getXorExpression();
 
     @Nullable
-    PsiElement getOP_XOR();
+    public DLanguageAndExpression getAndExpression();
+
+    @Nullable
+    public PsiElement getOP_XOR();
 
 }

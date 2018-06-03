@@ -6,19 +6,25 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiNamedElement;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiTreeUtil;
-import io.github.intellij.dlanguage.psi.*;
-import io.github.intellij.dlanguage.psi.interfaces.DNamedElement;
-import io.github.intellij.dlanguage.psi.interfaces.HasVisibility;
-import io.github.intellij.dlanguage.psi.*;
+import io.github.intellij.dlanguage.psi.DLanguageClassDeclaration;
+import io.github.intellij.dlanguage.psi.DLanguageIdentifierChain;
+import io.github.intellij.dlanguage.psi.DLanguageIdentifierOrTemplateChain;
+import io.github.intellij.dlanguage.psi.DLanguageIdentifierOrTemplateInstance;
+import io.github.intellij.dlanguage.psi.DLanguageTemplateMixinExpression;
+import io.github.intellij.dlanguage.psi.named.DlangFunctionDeclaration;
+import io.github.intellij.dlanguage.psi.named.DlangIdentifier;
+import io.github.intellij.dlanguage.psi.named.DlangInterfaceOrClass;
+import io.github.intellij.dlanguage.psi.named.DlangStructDeclaration;
+import io.github.intellij.dlanguage.psi.named.DlangTemplateDeclaration;
+import io.github.intellij.dlanguage.psi.named.DlangUnionDeclaration;
 import io.github.intellij.dlanguage.psi.interfaces.DNamedElement;
 import io.github.intellij.dlanguage.psi.interfaces.Declaration;
-import io.github.intellij.dlanguage.psi.interfaces.HasVisibility;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.*;
-
-import static io.github.intellij.dlanguage.psi.interfaces.HasVisibility.Visibility.*;
 
 /**
  * General util class. Provides methods for finding named nodes in the Psi tree.
@@ -122,8 +128,8 @@ public class DUtil {
         return PsiTreeUtil.getParentOfType(namedElement, DlangInterfaceOrClass.class, DlangStructDeclaration.class, DlangTemplateDeclaration.class, DlangUnionDeclaration.class);
     }
 
-    public static DLanguageFunctionDeclaration getParentFunction(final PsiElement namedElement) {
-        return PsiTreeUtil.getParentOfType(namedElement, DLanguageFunctionDeclaration.class);
+    public static DlangFunctionDeclaration getParentFunction(final PsiElement namedElement) {
+        return PsiTreeUtil.getParentOfType(namedElement, DlangFunctionDeclaration.class);
     }
 
 //    public static boolean isPublic(DNamedElement symbol) {
@@ -155,35 +161,35 @@ public class DUtil {
 //        return searchForPublic(symbol.getParent());
 //    }
 
-    public static <T extends HasVisibility> List<T> getPublicElements(final List<T> elements) {
-        final List<T> res = new ArrayList<>();
-        for (final T element : elements) {
-            if (element.isPublic()) {
-                res.add(element);
-            }
-        }
-        return res;
-    }
+//    public static <T extends HasVisibility> List<T> getPublicElements(final List<T> elements) {
+//        final List<T> res = new ArrayList<>();
+//        for (final T element : elements) {
+//            if (element.isPublic()) {
+//                res.add(element);
+//            }
+//        }
+//        return res;
+//    }
 
-    public static <T extends HasVisibility> List<T> getProtectedElements(final List<T> elements) {
-        final List<T> res = new ArrayList<>();
-        for (final T element : elements) {
-            if (element.isPublic()) {
-                res.add(element);
-            }
-        }
-        return res;
-    }
-
-    public static <T extends HasVisibility> List<T> getPrivateElements(final List<T> elements) {
-        final List<T> res = new ArrayList<>();
-        for (final T element : elements) {
-            if (element.isPublic()) {
-                res.add(element);
-            }
-        }
-        return res;
-    }
+//    public static <T extends HasVisibility> List<T> getProtectedElements(final List<T> elements) {
+//        final List<T> res = new ArrayList<>();
+//        for (final T element : elements) {
+//            if (element.isPublic()) {
+//                res.add(element);
+//            }
+//        }
+//        return res;
+//    }
+//
+//    public static <T extends HasVisibility> List<T> getPrivateElements(final List<T> elements) {
+//        final List<T> res = new ArrayList<>();
+//        for (final T element : elements) {
+//            if (element.isPublic()) {
+//                res.add(element);
+//            }
+//        }
+//        return res;
+//    }
 
     @NotNull
     public static PsiElement getTopLevelOfRecursiveElement(final PsiElement element, final Class<? extends PsiElement> tClass) {
@@ -234,36 +240,27 @@ public class DUtil {
 //        return mixins;
 //    }
 
-    public static HasVisibility.Visibility protectionToVisibilty(final DLanguageAttribute protectionAttribute) {
-        final String text = protectionAttribute.getText();
-        if (text.equals("private"))
-            return HasVisibility.Visibility.private_;
-        if (text.equals("public"))
-            return HasVisibility.Visibility.public_;
-        if (text.equals("protected"))
-            return HasVisibility.Visibility.protected_;
-        throw new IllegalArgumentException(protectionAttribute.toString() + protectionAttribute.getText());
-    }
-
-    public static HasVisibility.Visibility protectionToVisibilty(final String text) {
-        if (text.equals("private"))
-            return HasVisibility.Visibility.private_;
-        if (text.equals("public"))
-            return HasVisibility.Visibility.public_;
-        if (text.equals("protected"))
-            return HasVisibility.Visibility.protected_;
-        throw new IllegalArgumentException(text);
-
-    }
-
-    public static DlangIdentifier getEndOfIdentifierList(final DLanguageIdentifierOrTemplateChain chain) {
-        final List<DLanguageIdentifierOrTemplateInstance> list = chain.getIdentifierOrTemplateInstances();
-        if (list.get(list.size() - 1).getIdentifier() != null)
-            return list.get(list.size() - 1).getIdentifier();
-        else
-            throw new IllegalStateException();
-
-    }
+//    public static HasVisibility.Visibility protectionToVisibilty(final DLanguageAttribute protectionAttribute) {
+//        final String text = protectionAttribute.getText();
+//        if (text.equals("private"))
+//            return HasVisibility.Visibility.private_;
+//        if (text.equals("public"))
+//            return HasVisibility.Visibility.public_;
+//        if (text.equals("protected"))
+//            return HasVisibility.Visibility.protected_;
+//        throw new IllegalArgumentException(protectionAttribute.toString() + protectionAttribute.getText());
+//    }
+//
+//    public static HasVisibility.Visibility protectionToVisibilty(final String text) {
+//        if (text.equals("private"))
+//            return HasVisibility.Visibility.private_;
+//        if (text.equals("public"))
+//            return HasVisibility.Visibility.public_;
+//        if (text.equals("protected"))
+//            return HasVisibility.Visibility.protected_;
+//        throw new IllegalArgumentException(text);
+//
+//    }
 
 
     public static ASTNode getPrevSiblingOfType(@Nullable final ASTNode child, @Nullable final IElementType type) {
@@ -302,12 +299,34 @@ public class DUtil {
 
     }
 
-    public static DlangIdentifier getEndOfIdentifierList(final DLanguageIdentifierChain chain) {
+    public static DlangIdentifier getEndOfIdentifierList(
+        final @NotNull DLanguageIdentifierChain chain) {
         final List<DlangIdentifier> list = chain.getIdentifiers();
-        if (list.get(list.size() - 1) != null)
-            return list.get(list.size() - 1);
-        else
-            throw new IllegalStateException();
+        if (list.get(list.size() - 1) != null) {
+            try {
+                return list.get(list.size() - 1);
+            } catch (final ArrayIndexOutOfBoundsException e) {
+                return null;
+            }
+        } else {
+            return null;
+        }
+    }
+
+    public static DlangIdentifier getEndOfIdentifierList(
+        final DLanguageIdentifierOrTemplateChain chain) {
+        final List<DLanguageIdentifierOrTemplateInstance> list = chain
+            .getIdentifierOrTemplateInstances();
+        if (list.get(list.size() - 1).getIdentifier() != null) {
+            try {
+                return list.get(list.size() - 1).getIdentifier();
+            } catch (final ArrayIndexOutOfBoundsException e) {
+                return null;
+            }
+        } else {
+            return null;
+        }
+
     }
 }
 

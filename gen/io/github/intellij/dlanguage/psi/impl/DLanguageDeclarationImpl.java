@@ -1,5 +1,8 @@
 package io.github.intellij.dlanguage.psi.impl;
 
+import static io.github.intellij.dlanguage.psi.DlangTypes.OP_BRACES_LEFT;
+import static io.github.intellij.dlanguage.psi.DlangTypes.OP_BRACES_RIGHT;
+
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
@@ -7,19 +10,46 @@ import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.ResolveState;
 import com.intellij.psi.scope.PsiScopeProcessor;
 import com.intellij.psi.util.PsiTreeUtil;
-import io.github.intellij.dlanguage.psi.*;
-import io.github.intellij.dlanguage.psi.*;
+import io.github.intellij.dlanguage.psi.DLanguageAliasDeclaration;
+import io.github.intellij.dlanguage.psi.DLanguageAliasThisDeclaration;
+import io.github.intellij.dlanguage.psi.DLanguageAnonymousEnumDeclaration;
+import io.github.intellij.dlanguage.psi.DLanguageAttribute;
+import io.github.intellij.dlanguage.psi.DLanguageAttributeDeclaration;
+import io.github.intellij.dlanguage.psi.DLanguageClassDeclaration;
+import io.github.intellij.dlanguage.psi.DLanguageConditionalDeclaration;
+import io.github.intellij.dlanguage.psi.DLanguageDebugSpecification;
+import io.github.intellij.dlanguage.psi.DLanguageDeclaration;
+import io.github.intellij.dlanguage.psi.DLanguageEponymousTemplateDeclaration;
+import io.github.intellij.dlanguage.psi.DLanguageImportDeclaration;
+import io.github.intellij.dlanguage.psi.DLanguageInterfaceDeclaration;
+import io.github.intellij.dlanguage.psi.DLanguageInvariant;
+import io.github.intellij.dlanguage.psi.DLanguageMixinDeclaration;
+import io.github.intellij.dlanguage.psi.DLanguageMixinTemplateDeclaration;
+import io.github.intellij.dlanguage.psi.DLanguagePragmaDeclaration;
+import io.github.intellij.dlanguage.psi.DLanguageStaticAssertDeclaration;
+import io.github.intellij.dlanguage.psi.DLanguageUnittest;
+import io.github.intellij.dlanguage.psi.DLanguageVariableDeclaration;
+import io.github.intellij.dlanguage.psi.named.DLanguageVersionSpecification;
+import io.github.intellij.dlanguage.psi.named.DlangConstructor;
+import io.github.intellij.dlanguage.psi.named.DlangDestructor;
+import io.github.intellij.dlanguage.psi.named.DlangEnumDeclaration;
+import io.github.intellij.dlanguage.psi.named.DlangFunctionDeclaration;
+import io.github.intellij.dlanguage.psi.named.DlangSharedStaticConstructor;
+import io.github.intellij.dlanguage.psi.named.DlangSharedStaticDestructor;
+import io.github.intellij.dlanguage.psi.named.DlangStaticConstructor;
+import io.github.intellij.dlanguage.psi.named.DlangStaticDestructor;
+import io.github.intellij.dlanguage.psi.named.DlangStructDeclaration;
+import io.github.intellij.dlanguage.psi.named.DlangTemplateDeclaration;
+import io.github.intellij.dlanguage.psi.named.DlangUnionDeclaration;
+import io.github.intellij.dlanguage.psi.DlangVisitor;
 import io.github.intellij.dlanguage.resolve.ScopeProcessorImpl;
+import java.util.List;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-
-import static io.github.intellij.dlanguage.psi.DlangTypes.OP_BRACES_LEFT;
-import static io.github.intellij.dlanguage.psi.DlangTypes.OP_BRACES_RIGHT;
-
 
 public class DLanguageDeclarationImpl extends ASTWrapperPsiElement implements DLanguageDeclaration {
+
     public DLanguageDeclarationImpl(ASTNode node) {
         super(node);
     }
@@ -29,8 +59,11 @@ public class DLanguageDeclarationImpl extends ASTWrapperPsiElement implements DL
     }
 
     public void accept(@NotNull PsiElementVisitor visitor) {
-        if (visitor instanceof DlangVisitor) accept((DlangVisitor) visitor);
-        else super.accept(visitor);
+        if (visitor instanceof DlangVisitor) {
+            accept((DlangVisitor) visitor);
+        } else {
+            super.accept(visitor);
+        }
     }
 
     @Nullable
@@ -54,13 +87,13 @@ public class DLanguageDeclarationImpl extends ASTWrapperPsiElement implements DL
     }
 
     @Nullable
-    public DLanguageConstructor getConstructor() {
-        return PsiTreeUtil.getChildOfType(this, DLanguageConstructor.class);
+    public DlangConstructor getConstructor() {
+        return PsiTreeUtil.getChildOfType(this, DlangConstructor.class);
     }
 
     @Nullable
-    public DLanguageDestructor getDestructor() {
-        return PsiTreeUtil.getChildOfType(this, DLanguageDestructor.class);
+    public DlangDestructor getDestructor() {
+        return PsiTreeUtil.getChildOfType(this, DlangDestructor.class);
     }
 
     @Nullable
@@ -104,23 +137,23 @@ public class DLanguageDeclarationImpl extends ASTWrapperPsiElement implements DL
     }
 
     @Nullable
-    public DLanguageSharedStaticConstructor getSharedStaticConstructor() {
-        return PsiTreeUtil.getChildOfType(this, DLanguageSharedStaticConstructor.class);
+    public DlangSharedStaticConstructor getSharedStaticConstructor() {
+        return PsiTreeUtil.getChildOfType(this, DlangSharedStaticConstructor.class);
     }
 
     @Nullable
-    public DLanguageSharedStaticDestructor getSharedStaticDestructor() {
-        return PsiTreeUtil.getChildOfType(this, DLanguageSharedStaticDestructor.class);
+    public DlangSharedStaticDestructor getSharedStaticDestructor() {
+        return PsiTreeUtil.getChildOfType(this, DlangSharedStaticDestructor.class);
     }
 
     @Nullable
-    public DLanguageStaticConstructor getStaticConstructor() {
-        return PsiTreeUtil.getChildOfType(this, DLanguageStaticConstructor.class);
+    public DlangStaticConstructor getStaticConstructor() {
+        return PsiTreeUtil.getChildOfType(this, DlangStaticConstructor.class);
     }
 
     @Nullable
-    public DLanguageStaticDestructor getStaticDestructor() {
-        return PsiTreeUtil.getChildOfType(this, DLanguageStaticDestructor.class);
+    public DlangStaticDestructor getStaticDestructor() {
+        return PsiTreeUtil.getChildOfType(this, DlangStaticDestructor.class);
     }
 
     @Nullable
@@ -175,17 +208,17 @@ public class DLanguageDeclarationImpl extends ASTWrapperPsiElement implements DL
 
     @Nullable
     public PsiElement getOP_BRACES_RIGHT() {
-        return findChildByType(DlangTypes.OP_BRACES_RIGHT);
+        return findChildByType(OP_BRACES_RIGHT);
     }
 
     @Nullable
     public PsiElement getOP_BRACES_LEFT() {
-        return findChildByType(DlangTypes.OP_BRACES_LEFT);
+        return findChildByType(OP_BRACES_LEFT);
     }
 
     @Nullable
-    public DLanguageFunctionDeclaration getFunctionDeclaration() {
-        return PsiTreeUtil.getChildOfType(this, DLanguageFunctionDeclaration.class);
+    public DlangFunctionDeclaration getFunctionDeclaration() {
+        return PsiTreeUtil.getChildOfType(this, DlangFunctionDeclaration.class);
     }
 
     @Nullable
@@ -200,9 +233,10 @@ public class DLanguageDeclarationImpl extends ASTWrapperPsiElement implements DL
 
     @Override
     public boolean processDeclarations(@NotNull PsiScopeProcessor processor,
-                                       @NotNull ResolveState state,
-                                       PsiElement lastParent,
-                                       @NotNull PsiElement place) {
-        return ScopeProcessorImpl.INSTANCE.processDeclarations(this, processor, state, lastParent, place);
+        @NotNull ResolveState state,
+        PsiElement lastParent,
+        @NotNull PsiElement place) {
+        return ScopeProcessorImpl.INSTANCE
+            .processDeclarations(this, processor, state, lastParent, place);
     }
 }

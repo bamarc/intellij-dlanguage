@@ -5,13 +5,14 @@ import org.jetbrains.annotations.Nullable;
 
 
 public interface DLanguageTemplateParameters extends PsiElement {
-    @Nullable
-    DLanguageTemplateParameterList getTemplateParameterList();
 
     @Nullable
-    PsiElement getOP_PAR_RIGHT();
+    public DLanguageTemplateParameterList getTemplateParameterList();
 
     @Nullable
-    PsiElement getOP_PAR_LEFT();
+    public PsiElement getOP_PAR_RIGHT();
+
+    @Nullable
+    public PsiElement getOP_PAR_LEFT();
 
 }

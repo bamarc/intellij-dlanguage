@@ -1,13 +1,14 @@
 package io.github.intellij.dlanguage.psi;
 
 import com.intellij.psi.PsiElement;
+import io.github.intellij.dlanguage.psi.named.DlangEnumMember;
+import java.util.List;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-
 
 public interface DLanguageAnonymousEnumDeclaration extends PsiElement {
+
     @Nullable
     DLanguageAssignExpression getAssignExpression();
 
@@ -21,5 +22,5 @@ public interface DLanguageAnonymousEnumDeclaration extends PsiElement {
     DLanguageType getType();
 
     @NotNull
-    List<DLanguageEnumMember> getEnumMembers();
+    List<DlangEnumMember> getEnumMembers();
 }

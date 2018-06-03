@@ -1,26 +1,28 @@
 package io.github.intellij.dlanguage.psi;
 
 import com.intellij.psi.PsiElement;
+import io.github.intellij.dlanguage.psi.named.DlangIdentifier;
 import org.jetbrains.annotations.Nullable;
 
 
 public interface DLanguageAsmInstruction extends PsiElement {
-    @Nullable
-    PsiElement getINTEGER_LITERAL();
 
     @Nullable
-    DlangIdentifier getIdentifier();
+    public PsiElement getINTEGER_LITERAL();
 
     @Nullable
-    DLanguageAsmInstruction getAsmInstruction();
+    public DlangIdentifier getIdentifier();
 
     @Nullable
-    DLanguageOperands getOperands();
+    public DLanguageAsmInstruction getAsmInstruction();
 
     @Nullable
-    PsiElement getKW_ALIGN();
+    public DLanguageOperands getOperands();
 
     @Nullable
-    PsiElement getOP_COLON();
+    public PsiElement getKW_ALIGN();
+
+    @Nullable
+    public PsiElement getOP_COLON();
 
 }

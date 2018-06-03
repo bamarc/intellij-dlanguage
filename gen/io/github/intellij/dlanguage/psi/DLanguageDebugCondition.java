@@ -1,23 +1,25 @@
 package io.github.intellij.dlanguage.psi;
 
 import com.intellij.psi.PsiElement;
+import io.github.intellij.dlanguage.psi.named.DlangIdentifier;
 import org.jetbrains.annotations.Nullable;
 
 
 public interface DLanguageDebugCondition extends PsiElement {
-    @Nullable
-    PsiElement getKW_DEBUG();
 
     @Nullable
-    PsiElement getINTEGER_LITERAL();
+    public PsiElement getKW_DEBUG();
 
     @Nullable
-    DlangIdentifier getIdentifier();
+    public PsiElement getINTEGER_LITERAL();
 
     @Nullable
-    PsiElement getOP_PAR_RIGHT();
+    public DlangIdentifier getIdentifier();
 
     @Nullable
-    PsiElement getOP_PAR_LEFT();
+    public PsiElement getOP_PAR_RIGHT();
+
+    @Nullable
+    public PsiElement getOP_PAR_LEFT();
 
 }

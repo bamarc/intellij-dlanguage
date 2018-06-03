@@ -1,31 +1,32 @@
 package io.github.intellij.dlanguage.psi;
 
 import com.intellij.psi.PsiElement;
+import io.github.intellij.dlanguage.psi.named.DlangIdentifier;
+import java.util.List;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-
 
 public interface DLanguageLambdaExpression extends PsiElement {
-    @Nullable
-    DlangIdentifier getIdentifier();
 
     @Nullable
-    PsiElement getKW_FUNCTION();
+    public DlangIdentifier getIdentifier();
 
     @Nullable
-    PsiElement getKW_DELEGATE();
+    public PsiElement getKW_FUNCTION();
 
     @Nullable
-    PsiElement getOP_LAMBDA_ARROW();
+    public PsiElement getKW_DELEGATE();
 
     @Nullable
-    DLanguageAssignExpression getAssignExpression();
+    public PsiElement getOP_LAMBDA_ARROW();
 
     @Nullable
-    DLanguageParameters getParameters();
+    public DLanguageAssignExpression getAssignExpression();
+
+    @Nullable
+    public DLanguageParameters getParameters();
 
     @NotNull
-    List<DLanguageFunctionAttribute> getFunctionAttributes();
+    public List<DLanguageFunctionAttribute> getFunctionAttributes();
 }

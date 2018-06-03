@@ -1,19 +1,27 @@
 package io.github.intellij.dlanguage.psi.impl.named;
 
 import com.intellij.lang.ASTNode;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.stubs.IStubElementType;
 import com.intellij.psi.util.PsiTreeUtil;
-import io.github.intellij.dlanguage.psi.*;
+import io.github.intellij.dlanguage.psi.DLanguageIdentifierChain;
+import io.github.intellij.dlanguage.psi.DLanguageImportBind;
+import io.github.intellij.dlanguage.psi.DLanguageImportBindings;
+import io.github.intellij.dlanguage.psi.DLanguageImportDeclaration;
+import io.github.intellij.dlanguage.psi.named.DlangIdentifier;
+import io.github.intellij.dlanguage.psi.named.DlangSingleImport;
+import io.github.intellij.dlanguage.psi.DlangTypes;
+import io.github.intellij.dlanguage.psi.DlangVisitor;
 import io.github.intellij.dlanguage.psi.impl.DNamedStubbedPsiElementBase;
-import io.github.intellij.dlanguage.resolve.processors.parameters.DAttributesFinder;
+import io.github.intellij.dlanguage.psi.references.DReference;
 import io.github.intellij.dlanguage.stubs.DlangSingleImportStub;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Created by francis on 7/14/2017.
@@ -27,6 +35,15 @@ public class DlangSingleImportImpl extends DNamedStubbedPsiElementBase<DlangSing
 
     public DlangSingleImportImpl(final ASTNode node) {
         super(node);
+    }
+
+    public void accept(@NotNull final DlangVisitor visitor) {visitor.visitDNamedElement(this);
+        visitor.visitSingleImport(this);
+    }
+
+    public void accept(@NotNull final PsiElementVisitor visitor) {
+        if (visitor instanceof DlangVisitor) accept((DlangVisitor) visitor);
+        else super.accept(visitor);
     }
 
     @Nullable
@@ -50,17 +67,27 @@ public class DlangSingleImportImpl extends DNamedStubbedPsiElementBase<DlangSing
     @NotNull
     @Override
     public Set<String> getApplicableImportBinds() {
-        if (getGreenStub() != null) {
+        DlangSingleImportStub greenStub = getGreenStub();
+        if (greenStub != null) {
             try {
-                return getGreenStub().getApplicableImportBinds();
+                return greenStub.getApplicableImportBinds();
             } catch (final NullPointerException e) {
-                e.printStackTrace();
+                Logger.getInstance(DlangSingleImportImpl.class).error(e);
             }
         }
-        if (((DLanguageImportDeclaration) getParent()).getImportBindings() != null) {
-            return ((DLanguageImportDeclaration) getParent()).getImportBindings().getImportBinds().stream().map(dLanguageImportBind -> dLanguageImportBind.getIdentifier().getName()).collect(Collectors.toSet());
+        final DLanguageImportBindings importBindings = ((DLanguageImportDeclaration) getParent())
+            .getImportBindings();
+        if (importBindings != null) {
+            final Set<String> set = new HashSet<>();
+            for (final DLanguageImportBind importBind : importBindings.getImportBinds()) {
+                if (importBind.getIdentifier() != null) {
+                    final @NotNull String name = importBind.getIdentifier().getName();
+                    set.add(name);
+                }
+            }
+            return set;
         }
-        return new HashSet<>();
+        return Collections.emptySet();
     }
 
     @NotNull
@@ -69,8 +96,14 @@ public class DlangSingleImportImpl extends DNamedStubbedPsiElementBase<DlangSing
         if (getGreenStub() != null) {
             return getGreenStub().getImportedModule();
         }
-        if (getIdentifierChain().getText().equals(""))
-            throw new IllegalStateException();
+        if (getIdentifierChain() == null) {
+            return DReference.Companion.getNAME_NOT_FOUND_STRING();
+        }
+        if (getIdentifierChain().getText().equals("")) {
+            Logger.getInstance(getClass())
+                .warn("getIdentifier chain was: \"\". Complete text of symbol: " + getText());
+            return DReference.Companion.getNAME_NOT_FOUND_STRING();
+        }
         return getIdentifierChain().getText();
     }
 
@@ -79,17 +112,6 @@ public class DlangSingleImportImpl extends DNamedStubbedPsiElementBase<DlangSing
     public DlangIdentifier getNameIdentifier() {
         return getIdentifier();
     }
-
-    public Boolean isPublic() {
-        if (getGreenStub() != null)
-            return getGreenStub().isPublic();
-        if (getIdentifierChain() == null || getIdentifierChain().getIdentifiers().isEmpty())
-            return false;
-        final DAttributesFinder finder = new DAttributesFinder(getIdentifierChain().getIdentifiers().get(0));
-        finder.recurseUp();
-        return finder.isPublic();
-    }
-
     public boolean hasAName() {
         try {
             return getIdentifier() != null;

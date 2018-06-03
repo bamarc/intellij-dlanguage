@@ -4,13 +4,18 @@ import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
-import io.github.intellij.dlanguage.psi.*;
-import io.github.intellij.dlanguage.psi.*;
+import io.github.intellij.dlanguage.psi.DLanguageCompileCondition;
+import io.github.intellij.dlanguage.psi.DLanguageDebugCondition;
+import io.github.intellij.dlanguage.psi.DLanguageStaticIfCondition;
+import io.github.intellij.dlanguage.psi.DLanguageVersionCondition;
+import io.github.intellij.dlanguage.psi.DlangVisitor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 
-public class DLanguageCompileConditionImpl extends ASTWrapperPsiElement implements DLanguageCompileCondition {
+public class DLanguageCompileConditionImpl extends ASTWrapperPsiElement implements
+    DLanguageCompileCondition {
+
     public DLanguageCompileConditionImpl(ASTNode node) {
         super(node);
     }
@@ -20,8 +25,11 @@ public class DLanguageCompileConditionImpl extends ASTWrapperPsiElement implemen
     }
 
     public void accept(@NotNull PsiElementVisitor visitor) {
-        if (visitor instanceof DlangVisitor) accept((DlangVisitor) visitor);
-        else super.accept(visitor);
+        if (visitor instanceof DlangVisitor) {
+            accept((DlangVisitor) visitor);
+        } else {
+            super.accept(visitor);
+        }
     }
 
     @Nullable

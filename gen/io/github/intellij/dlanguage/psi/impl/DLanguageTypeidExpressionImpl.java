@@ -1,4 +1,10 @@
+
+
 package io.github.intellij.dlanguage.psi.impl;
+
+import static io.github.intellij.dlanguage.psi.DlangTypes.KW_TYPEID;
+import static io.github.intellij.dlanguage.psi.DlangTypes.OP_PAR_LEFT;
+import static io.github.intellij.dlanguage.psi.DlangTypes.OP_PAR_RIGHT;
 
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.intellij.lang.ASTNode;
@@ -12,10 +18,10 @@ import io.github.intellij.dlanguage.psi.DlangVisitor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import static io.github.intellij.dlanguage.psi.DlangTypes.*;
 
+public class DLanguageTypeidExpressionImpl extends ASTWrapperPsiElement implements
+    DLanguageTypeidExpression {
 
-public class DLanguageTypeidExpressionImpl extends ASTWrapperPsiElement implements DLanguageTypeidExpression {
     public DLanguageTypeidExpressionImpl(ASTNode node) {
         super(node);
     }
@@ -25,8 +31,11 @@ public class DLanguageTypeidExpressionImpl extends ASTWrapperPsiElement implemen
     }
 
     public void accept(@NotNull PsiElementVisitor visitor) {
-        if (visitor instanceof DlangVisitor) accept((DlangVisitor) visitor);
-        else super.accept(visitor);
+        if (visitor instanceof DlangVisitor) {
+            accept((DlangVisitor) visitor);
+        } else {
+            super.accept(visitor);
+        }
     }
 
     @Nullable

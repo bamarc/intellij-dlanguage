@@ -5,16 +5,17 @@ import org.jetbrains.annotations.Nullable;
 
 
 public interface DLanguageInvariant extends PsiElement {
-    @Nullable
-    DLanguageBlockStatement getBlockStatement();
 
     @Nullable
-    PsiElement getKW_INVARIANT();
+    public DLanguageBlockStatement getBlockStatement();
 
     @Nullable
-    PsiElement getOP_PAR_RIGHT();
+    public PsiElement getKW_INVARIANT();
 
     @Nullable
-    PsiElement getOP_PAR_LEFT();
+    public PsiElement getOP_PAR_RIGHT();
+
+    @Nullable
+    public PsiElement getOP_PAR_LEFT();
 
 }

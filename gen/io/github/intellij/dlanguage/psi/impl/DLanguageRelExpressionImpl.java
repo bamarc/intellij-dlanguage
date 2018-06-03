@@ -1,5 +1,18 @@
 package io.github.intellij.dlanguage.psi.impl;
 
+import static io.github.intellij.dlanguage.psi.DlangTypes.OP_GT;
+import static io.github.intellij.dlanguage.psi.DlangTypes.OP_GT_EQ;
+import static io.github.intellij.dlanguage.psi.DlangTypes.OP_LESS;
+import static io.github.intellij.dlanguage.psi.DlangTypes.OP_LESS_EQ;
+import static io.github.intellij.dlanguage.psi.DlangTypes.OP_LESS_GR;
+import static io.github.intellij.dlanguage.psi.DlangTypes.OP_LESS_GR_EQ;
+import static io.github.intellij.dlanguage.psi.DlangTypes.OP_NOT_GR;
+import static io.github.intellij.dlanguage.psi.DlangTypes.OP_NOT_GR_EQ;
+import static io.github.intellij.dlanguage.psi.DlangTypes.OP_NOT_LESS;
+import static io.github.intellij.dlanguage.psi.DlangTypes.OP_NOT_LESS_EQ;
+import static io.github.intellij.dlanguage.psi.DlangTypes.OP_UNORD;
+import static io.github.intellij.dlanguage.psi.DlangTypes.OP_UNORD_EQ;
+
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
@@ -11,10 +24,10 @@ import io.github.intellij.dlanguage.psi.DlangVisitor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import static io.github.intellij.dlanguage.psi.DlangTypes.*;
 
+public class DLanguageRelExpressionImpl extends ASTWrapperPsiElement implements
+    DLanguageRelExpression {
 
-public class DLanguageRelExpressionImpl extends ASTWrapperPsiElement implements DLanguageRelExpression {
     public DLanguageRelExpressionImpl(ASTNode node) {
         super(node);
     }
@@ -24,8 +37,11 @@ public class DLanguageRelExpressionImpl extends ASTWrapperPsiElement implements 
     }
 
     public void accept(@NotNull PsiElementVisitor visitor) {
-        if (visitor instanceof DlangVisitor) accept((DlangVisitor) visitor);
-        else super.accept(visitor);
+        if (visitor instanceof DlangVisitor) {
+            accept((DlangVisitor) visitor);
+        } else {
+            super.accept(visitor);
+        }
     }
 
     @Nullable

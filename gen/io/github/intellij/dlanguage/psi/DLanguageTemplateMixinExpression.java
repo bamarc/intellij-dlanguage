@@ -1,19 +1,21 @@
 package io.github.intellij.dlanguage.psi;
 
 import com.intellij.psi.PsiElement;
+import io.github.intellij.dlanguage.psi.named.DlangIdentifier;
 import org.jetbrains.annotations.Nullable;
 
 
 public interface DLanguageTemplateMixinExpression extends PsiElement {
-    @Nullable
-    PsiElement getKW_MIXIN();
 
     @Nullable
-    DLanguageMixinTemplateName getMixinTemplateName();
+    public PsiElement getKW_MIXIN();
 
     @Nullable
-    DLanguageTemplateArguments getTemplateArguments();
+    public DLanguageMixinTemplateName getMixinTemplateName();
 
     @Nullable
-    DlangIdentifier getIdentifier();
+    public DLanguageTemplateArguments getTemplateArguments();
+
+    @Nullable
+    public DlangIdentifier getIdentifier();
 }

@@ -3,7 +3,9 @@ package io.github.intellij.dlanguage.codeinsight.dcd;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.configurations.GeneralCommandLine;
 import com.intellij.execution.configurations.ParametersList;
+import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleComponent;
@@ -14,15 +16,13 @@ import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.containers.ContainerUtil;
+import io.github.intellij.dlanguage.messagebus.ToolChangeListener;
+import io.github.intellij.dlanguage.messagebus.Topics;
 import io.github.intellij.dlanguage.project.DubPackage;
 import io.github.intellij.dlanguage.settings.ToolKey;
 import io.github.intellij.dlanguage.settings.ToolSettings;
 import io.github.intellij.dlanguage.DlangSdkType;
 import io.github.intellij.dlanguage.project.DubConfigurationParser;
-import io.github.intellij.dlanguage.project.DubPackage;
-import io.github.intellij.dlanguage.settings.SettingsChangeNotifier;
-import io.github.intellij.dlanguage.settings.ToolKey;
-import io.github.intellij.dlanguage.settings.ToolSettings;
 import io.github.intellij.dlanguage.utils.ExecUtil;
 import io.github.intellij.dlanguage.utils.NotificationUtil;
 import org.jetbrains.annotations.NotNull;
@@ -40,7 +40,7 @@ import static io.github.intellij.dlanguage.utils.DUtil.isNotNullOrEmpty;
 /**
  * Process wrapper for DCD Server.  Implements ModuleComponent so destruction of processes coincides with closing projects.
  */
-public class DCDCompletionServer implements ModuleComponent, SettingsChangeNotifier {
+public class DCDCompletionServer implements ModuleComponent, ToolChangeListener {
 
     private static final Logger LOG = Logger.getInstance(DCDCompletionServer.class);
 
@@ -76,7 +76,7 @@ public class DCDCompletionServer implements ModuleComponent, SettingsChangeNotif
         this.flags = lookupFlags();
         this.workingDirectory = lookupWorkingDirectory();
         // Ensure that we are notified of changes to the settings.
-        module.getProject().getMessageBus().connect().subscribe(SettingsChangeNotifier.DCD_TOPIC, this);
+        module.getProject().getMessageBus().connect().subscribe(Topics.DCD_SERVER_TOOL_CHANGE, this);
     }
 
     private static void displayError(@NotNull final Project project, @NotNull final String message) {
@@ -97,7 +97,7 @@ public class DCDCompletionServer implements ModuleComponent, SettingsChangeNotif
         }
     }
 
-    private void spawnProcess() throws DCDError {
+    private void spawnProcess() {
         if(path == null || path.isEmpty()) {
             LOG.warn("request made to spawn process for DCD Server but path is not set");
             return;
@@ -131,15 +131,18 @@ public class DCDCompletionServer implements ModuleComponent, SettingsChangeNotif
 
         // try to auto add dub dependencies
         final DubConfigurationParser dubParser = new DubConfigurationParser(module.getProject(),
-            ToolKey.DUB_KEY.getPath());
+            ToolKey.DUB_KEY.getPath(), false);
         if (dubParser.canUseDub()) {
-            final List<DubPackage> dependencies = dubParser.getDubPackageDependencies();
-            for (final DubPackage pkg : dependencies) {
-                parametersList.addParametersString("-I");
-                final String pkgSource = String.format("%s%s", pkg.getPath(), pkg.getSourcesDir());
+            dubParser.getDubProject().ifPresent(dubProject -> dubProject.getPackages().forEach(pkg -> {
+                final List<String> sourcesDirs = pkg.getSourcesDirs();
+
                 LOG.debug("adding source for ", pkg.getName());
-                parametersList.addParametersString(pkgSource);
-            }
+
+                for(final String srcDir : sourcesDirs) {
+                    parametersList.addParametersString("-I");
+                    parametersList.addParametersString(String.format("%s%s", pkg.getPath(), srcDir));
+                }
+            }));
         } else {
             LOG.info("not possible to run 'dub describe'");
         }
@@ -148,8 +151,11 @@ public class DCDCompletionServer implements ModuleComponent, SettingsChangeNotif
             process = commandLine.createProcess();
             LOG.info("DCD process started");
         } catch (final ExecutionException e) {
+            Notifications.Bus.notify(new Notification("DCDNotification", "DCD Error",
+                "Unable to start a dcd server. Make sure that you have specified the path to the dcd-server and dcd-client executables correctly. You can specify executable paths under File > Settings > Languages & Frameworks > D Tools",
+                NotificationType.ERROR), module.getProject());
             LOG.error("Error spawning DCD process", e);
-            throw new InitError(e.toString());
+//            throw new InitError(e.toString());
         }
         input = new BufferedReader(new InputStreamReader(process.getInputStream()));
         output = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
@@ -213,18 +219,6 @@ public class DCDCompletionServer implements ModuleComponent, SettingsChangeNotif
         output = null;
     }
 
-    // Implemented methods for SettingsChangeNotifier
-    @Override
-    public void onSettingsChanged(@NotNull final ToolSettings settings) {
-        LOG.debug("DCD Server settings changed");
-        kill();
-        this.path = settings.getPath();
-        this.flags = settings.getFlags();
-        if(isNotNullOrEmpty(this.path)) {
-            restart();
-        }
-    }
-
     /**
      * Restarts the dcd-server.
      */
@@ -234,9 +228,9 @@ public class DCDCompletionServer implements ModuleComponent, SettingsChangeNotif
             try {
                 Thread.sleep(1500);
                 spawnProcess();
-            } catch (final DCDError e) {
+            } /*catch (final DCDError e) {
                 displayError(e.message);
-            } catch (final InterruptedException e) {
+            }*/ catch (final InterruptedException e) {
                 LOG.error(e);
             }
         }
@@ -268,6 +262,17 @@ public class DCDCompletionServer implements ModuleComponent, SettingsChangeNotif
     @Override
     public String getComponentName() {
         return "DCDCompletionServer";
+    }
+
+    @Override
+    public void onToolSettingsChanged(@NotNull final ToolSettings settings) {
+        LOG.debug("DCD Server settings changed");
+        kill();
+        this.path = settings.getPath();
+        this.flags = settings.getFlags();
+        if(isNotNullOrEmpty(this.path)) {
+            restart();
+        }
     }
 
     // Custom Exceptions

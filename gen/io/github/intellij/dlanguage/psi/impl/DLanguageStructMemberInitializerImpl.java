@@ -1,21 +1,23 @@
 package io.github.intellij.dlanguage.psi.impl;
 
+import static io.github.intellij.dlanguage.psi.DlangTypes.OP_COLON;
+
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
-import io.github.intellij.dlanguage.psi.DlangIdentifier;
 import io.github.intellij.dlanguage.psi.DLanguageNonVoidInitializer;
 import io.github.intellij.dlanguage.psi.DLanguageStructMemberInitializer;
+import io.github.intellij.dlanguage.psi.named.DlangIdentifier;
 import io.github.intellij.dlanguage.psi.DlangVisitor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import static io.github.intellij.dlanguage.psi.DlangTypes.OP_COLON;
 
+public class DLanguageStructMemberInitializerImpl extends ASTWrapperPsiElement implements
+    DLanguageStructMemberInitializer {
 
-public class DLanguageStructMemberInitializerImpl extends ASTWrapperPsiElement implements DLanguageStructMemberInitializer {
     public DLanguageStructMemberInitializerImpl(ASTNode node) {
         super(node);
     }
@@ -25,8 +27,11 @@ public class DLanguageStructMemberInitializerImpl extends ASTWrapperPsiElement i
     }
 
     public void accept(@NotNull PsiElementVisitor visitor) {
-        if (visitor instanceof DlangVisitor) accept((DlangVisitor) visitor);
-        else super.accept(visitor);
+        if (visitor instanceof DlangVisitor) {
+            accept((DlangVisitor) visitor);
+        } else {
+            super.accept(visitor);
+        }
     }
 
     @Nullable

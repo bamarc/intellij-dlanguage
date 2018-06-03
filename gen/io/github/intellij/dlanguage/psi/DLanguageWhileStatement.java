@@ -5,19 +5,20 @@ import org.jetbrains.annotations.Nullable;
 
 
 public interface DLanguageWhileStatement extends PsiElement {
-    @Nullable
-    PsiElement getKW_WHILE();
 
     @Nullable
-    DLanguageExpression getExpression();
+    public PsiElement getKW_WHILE();
 
     @Nullable
-    DLanguageDeclarationOrStatement getDeclarationOrStatement();
+    public DLanguageExpression getExpression();
 
     @Nullable
-    PsiElement getOP_PAR_RIGHT();
+    public DLanguageDeclarationOrStatement getDeclarationOrStatement();
 
     @Nullable
-    PsiElement getOP_PAR_LEFT();
+    public PsiElement getOP_PAR_RIGHT();
+
+    @Nullable
+    public PsiElement getOP_PAR_LEFT();
 
 }

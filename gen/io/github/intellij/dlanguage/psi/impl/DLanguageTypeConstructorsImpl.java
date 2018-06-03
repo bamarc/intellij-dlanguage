@@ -7,15 +7,13 @@ import com.intellij.psi.util.PsiTreeUtil;
 import io.github.intellij.dlanguage.psi.DLanguageTypeConstructor;
 import io.github.intellij.dlanguage.psi.DLanguageTypeConstructors;
 import io.github.intellij.dlanguage.psi.DlangVisitor;
-import io.github.intellij.dlanguage.psi.DLanguageTypeConstructor;
-import io.github.intellij.dlanguage.psi.DLanguageTypeConstructors;
-import io.github.intellij.dlanguage.psi.DlangVisitor;
+import java.util.List;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
 
+public class DLanguageTypeConstructorsImpl extends ASTWrapperPsiElement implements
+    DLanguageTypeConstructors {
 
-public class DLanguageTypeConstructorsImpl extends ASTWrapperPsiElement implements DLanguageTypeConstructors {
     public DLanguageTypeConstructorsImpl(ASTNode node) {
         super(node);
     }
@@ -25,8 +23,11 @@ public class DLanguageTypeConstructorsImpl extends ASTWrapperPsiElement implemen
     }
 
     public void accept(@NotNull PsiElementVisitor visitor) {
-        if (visitor instanceof DlangVisitor) accept((DlangVisitor) visitor);
-        else super.accept(visitor);
+        if (visitor instanceof DlangVisitor) {
+            accept((DlangVisitor) visitor);
+        } else {
+            super.accept(visitor);
+        }
     }
 
     @NotNull

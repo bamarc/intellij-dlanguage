@@ -1,21 +1,26 @@
 package io.github.intellij.dlanguage.psi.impl;
 
+import static io.github.intellij.dlanguage.psi.DlangTypes.KW_PRAGMA;
+import static io.github.intellij.dlanguage.psi.DlangTypes.OP_COMMA;
+import static io.github.intellij.dlanguage.psi.DlangTypes.OP_PAR_LEFT;
+import static io.github.intellij.dlanguage.psi.DlangTypes.OP_PAR_RIGHT;
+
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import io.github.intellij.dlanguage.psi.DLanguageArgumentList;
-import io.github.intellij.dlanguage.psi.DlangIdentifier;
 import io.github.intellij.dlanguage.psi.DLanguagePragmaExpression;
+import io.github.intellij.dlanguage.psi.named.DlangIdentifier;
 import io.github.intellij.dlanguage.psi.DlangVisitor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import static io.github.intellij.dlanguage.psi.DlangTypes.*;
 
+public class DLanguagePragmaExpressionImpl extends ASTWrapperPsiElement implements
+    DLanguagePragmaExpression {
 
-public class DLanguagePragmaExpressionImpl extends ASTWrapperPsiElement implements DLanguagePragmaExpression {
     public DLanguagePragmaExpressionImpl(ASTNode node) {
         super(node);
     }
@@ -25,8 +30,11 @@ public class DLanguagePragmaExpressionImpl extends ASTWrapperPsiElement implemen
     }
 
     public void accept(@NotNull PsiElementVisitor visitor) {
-        if (visitor instanceof DlangVisitor) accept((DlangVisitor) visitor);
-        else super.accept(visitor);
+        if (visitor instanceof DlangVisitor) {
+            accept((DlangVisitor) visitor);
+        } else {
+            super.accept(visitor);
+        }
     }
 
     @Nullable

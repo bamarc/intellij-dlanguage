@@ -4,13 +4,39 @@ import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
-import io.github.intellij.dlanguage.psi.*;
-import io.github.intellij.dlanguage.psi.*;
+import io.github.intellij.dlanguage.psi.DLanguageAsmStatement;
+import io.github.intellij.dlanguage.psi.DLanguageBlockStatement;
+import io.github.intellij.dlanguage.psi.DLanguageBreakStatement;
+import io.github.intellij.dlanguage.psi.DLanguageConditionalStatement;
+import io.github.intellij.dlanguage.psi.DLanguageContinueStatement;
+import io.github.intellij.dlanguage.psi.DLanguageDebugSpecification;
+import io.github.intellij.dlanguage.psi.DLanguageDoStatement;
+import io.github.intellij.dlanguage.psi.DLanguageExpressionStatement;
+import io.github.intellij.dlanguage.psi.DLanguageFinalSwitchStatement;
+import io.github.intellij.dlanguage.psi.DLanguageForStatement;
+import io.github.intellij.dlanguage.psi.DLanguageForeachStatement;
+import io.github.intellij.dlanguage.psi.DLanguageGotoStatement;
+import io.github.intellij.dlanguage.psi.DLanguageIfStatement;
+import io.github.intellij.dlanguage.psi.DLanguageReturnStatement;
+import io.github.intellij.dlanguage.psi.DLanguageScopeGuardStatement;
+import io.github.intellij.dlanguage.psi.DLanguageStatementNoCaseNoDefault;
+import io.github.intellij.dlanguage.psi.DLanguageStaticAssertStatement;
+import io.github.intellij.dlanguage.psi.DLanguageSwitchStatement;
+import io.github.intellij.dlanguage.psi.DLanguageSynchronizedStatement;
+import io.github.intellij.dlanguage.psi.DLanguageThrowStatement;
+import io.github.intellij.dlanguage.psi.DLanguageTryStatement;
+import io.github.intellij.dlanguage.psi.named.DLanguageVersionSpecification;
+import io.github.intellij.dlanguage.psi.DLanguageWhileStatement;
+import io.github.intellij.dlanguage.psi.DLanguageWithStatement;
+import io.github.intellij.dlanguage.psi.named.DlangLabeledStatement;
+import io.github.intellij.dlanguage.psi.DlangVisitor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 
-public class DLanguageStatementNoCaseNoDefaultImpl extends ASTWrapperPsiElement implements DLanguageStatementNoCaseNoDefault {
+public class DLanguageStatementNoCaseNoDefaultImpl extends ASTWrapperPsiElement implements
+    DLanguageStatementNoCaseNoDefault {
+
     public DLanguageStatementNoCaseNoDefaultImpl(ASTNode node) {
         super(node);
     }
@@ -20,13 +46,16 @@ public class DLanguageStatementNoCaseNoDefaultImpl extends ASTWrapperPsiElement 
     }
 
     public void accept(@NotNull PsiElementVisitor visitor) {
-        if (visitor instanceof DlangVisitor) accept((DlangVisitor) visitor);
-        else super.accept(visitor);
+        if (visitor instanceof DlangVisitor) {
+            accept((DlangVisitor) visitor);
+        } else {
+            super.accept(visitor);
+        }
     }
 
     @Nullable
-    public DLanguageLabeledStatement getLabeledStatement() {
-        return PsiTreeUtil.getChildOfType(this, DLanguageLabeledStatement.class);
+    public DlangLabeledStatement getLabeledStatement() {
+        return PsiTreeUtil.getChildOfType(this, DlangLabeledStatement.class);
     }
 
     @Nullable

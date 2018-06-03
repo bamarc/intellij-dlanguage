@@ -1,13 +1,15 @@
 package io.github.intellij.dlanguage.psi;
 
 import com.intellij.psi.PsiElement;
+import io.github.intellij.dlanguage.psi.named.DlangEnumMember;
+import io.github.intellij.dlanguage.psi.named.DlangIdentifier;
+import java.util.List;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-
 
 public interface DLanguageEnumBody extends PsiElement {
+
     @Nullable
     DlangIdentifier getIdentifier();
 
@@ -18,7 +20,7 @@ public interface DLanguageEnumBody extends PsiElement {
     PsiElement getOP_BRACES_LEFT();
 
     @NotNull
-    List<DLanguageEnumMember> getEnumMembers();
+    List<DlangEnumMember> getEnumMembers();
 
     @NotNull
     List<PsiElement> getOP_COMMAs();

@@ -1,17 +1,19 @@
 package io.github.intellij.dlanguage.psi;
 
 import com.intellij.psi.PsiElement;
+import io.github.intellij.dlanguage.psi.named.DlangIdentifier;
 import org.jetbrains.annotations.Nullable;
 
 
 public interface DLanguageContinueStatement extends PsiElement {
-    @Nullable
-    PsiElement getKW_CONTINUE();
 
     @Nullable
-    DlangIdentifier getIdentifier();
+    public PsiElement getKW_CONTINUE();
 
     @Nullable
-    PsiElement getOP_SCOLON();
+    public DlangIdentifier getIdentifier();
+
+    @Nullable
+    public PsiElement getOP_SCOLON();
 
 }

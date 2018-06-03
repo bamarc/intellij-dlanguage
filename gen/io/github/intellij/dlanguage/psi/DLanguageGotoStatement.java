@@ -1,26 +1,28 @@
 package io.github.intellij.dlanguage.psi;
 
 import com.intellij.psi.PsiElement;
+import io.github.intellij.dlanguage.psi.named.DlangIdentifier;
 import org.jetbrains.annotations.Nullable;
 
 
 public interface DLanguageGotoStatement extends PsiElement {
-    @Nullable
-    DlangIdentifier getIdentifier();
 
     @Nullable
-    DLanguageExpression getExpression();
+    public DlangIdentifier getIdentifier();
 
     @Nullable
-    PsiElement getKW_DEFAULT();
+    public DLanguageExpression getExpression();
 
     @Nullable
-    PsiElement getKW_CASE();
+    public PsiElement getKW_DEFAULT();
 
     @Nullable
-    PsiElement getKW_GOTO();
+    public PsiElement getKW_CASE();
 
     @Nullable
-    PsiElement getOP_SCOLON();
+    public PsiElement getKW_GOTO();
+
+    @Nullable
+    public PsiElement getOP_SCOLON();
 
 }

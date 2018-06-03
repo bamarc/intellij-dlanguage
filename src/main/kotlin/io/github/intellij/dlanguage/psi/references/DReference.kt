@@ -1,5 +1,6 @@
 package io.github.intellij.dlanguage.psi.references
 
+import com.intellij.ide.util.PropertiesComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
@@ -9,16 +10,13 @@ import com.intellij.psi.stubs.StubIndex
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import io.github.intellij.dlanguage.processors.DCompletionProcessor
-import io.github.intellij.dlanguage.psi.DLanguageFunctionDeclaration
 import io.github.intellij.dlanguage.psi.DlangFile
 import io.github.intellij.dlanguage.psi.interfaces.DNamedElement
+import io.github.intellij.dlanguage.psi.named.DlangIdentifier
 import io.github.intellij.dlanguage.resolve.DResolveUtil
 import io.github.intellij.dlanguage.resolve.processors.basic.BasicResolve
 import io.github.intellij.dlanguage.stubs.index.DTopLevelDeclarationsByModule
-import io.github.intellij.dlanguage.utils.IdentifierChain
-import io.github.intellij.dlanguage.utils.ImportDeclaration
-import io.github.intellij.dlanguage.utils.ModuleDeclaration
-import io.github.intellij.dlanguage.utils.SingleImport
+import io.github.intellij.dlanguage.utils.*
 import java.util.*
 
 
@@ -76,38 +74,9 @@ class DReference(element: PsiNamedElement, textRange: TextRange) : PsiReferenceB
      * on ctrl-space.
      */
     override fun getVariants(): Array<Any> {
-        //        // If we are not in an expression, don't provide reference completion.
-        //        if (PsiTreeUtil.getParentOfType(myElement, HaskellExp.class) == null) {
-        //            return new Object[]{};
-        //        }
-        //        // If we are in a qualified name, don't provide reference completion.
-        //        final PsiElement qId = PsiTreeUtil.getParentOfType(myElement, HaskellQconid.class, HaskellQvarid.class);
-        //        if (qId != null && qId.textContains('.')) {
-        //            return new Object[]{};
-        //        }
 
-        //        final PsiFile containingFile = myElement.getContainingFile();
-        //               if (!(containingFile instanceof DlangFile)) {
-        //                   return new Object[]{};
-        //               }
-        //        int offset = myElement.getTextOffset();
-        //
-        //        DCDCompletion dcdCompletion = new DCDCompletion();
-        //        return dcdCompletion.autoComplete(offset,containingFile).toArray();
+        if(!PropertiesComponent.getInstance().getBoolean("USE_NATIVE_CODE_COMPLETION")) return EMPTY_ARRAY
 
-        //        final PsiFile containingFile = myElement.getContainingFile();
-        //        if (!(containingFile instanceof DlangFile)) {
-        //            return new Object[]{};
-        //        }
-        //        List<PsiNamedElement> namedNodes = DUtil.findDefinitionNodes((DlangFile)containingFile);
-        //        List<String> variants = new ArrayList<String>(20);
-        //        for (final PsiNamedElement namedElement : namedNodes) {
-        //            variants.add(namedElement.getName());
-        //        }
-        //        return variants.toArray();
-
-
-//        val startProcessors = System.currentTimeMillis()
         val project = myElement.project
         val result = Collections.synchronizedList(ArrayList<String>())
         //todo a lot of these would be best implemented with a completion contributor
@@ -128,8 +97,13 @@ class DReference(element: PsiNamedElement, textRange: TextRange) : PsiReferenceB
         val moduleSoFar: IdentifierChain
         if (element is SingleImport) {
             moduleSoFar = element.identifierChain!!
-        } else
-            moduleSoFar = element.parent as IdentifierChain
+        } else {
+            if (element.parent is IdentifierChain)
+                moduleSoFar = element.parent as IdentifierChain
+            else {
+                return
+            }
+        }
         val moduleNameSoFar: String = moduleSoFar.text.replace(".IntellijIdeaRulezzz", "")
         val matchingModules = StubIndex.getInstance().getAllKeys(DTopLevelDeclarationsByModule.KEY, element.project).filter { it.startsWith(moduleNameSoFar) }
         val suggestedCompletions = matchingModules.map { it.removePrefix(moduleNameSoFar + ".") }
@@ -140,7 +114,7 @@ class DReference(element: PsiNamedElement, textRange: TextRange) : PsiReferenceB
     private fun addSymbolsFromImports(project: Project, result: MutableList<String>) {
         val decls = StubIndex.getElements(DTopLevelDeclarationsByModule.KEY, (element.containingFile as DlangFile).moduleOrFileName, project, GlobalSearchScope.fileScope(element.containingFile), DNamedElement::class.java)
         for (decl in decls) {
-            if (decl is DLanguageFunctionDeclaration) {
+            if (decl is FunctionDeclaration) {
                 result.add(decl.name + "(" + ")")
             } else
                 result.add(decl.name)
@@ -290,7 +264,7 @@ class DReference(element: PsiNamedElement, textRange: TextRange) : PsiReferenceB
     @Throws(IncorrectOperationException::class)
     override fun handleElementRename(newName: String): PsiElement {
         val element: PsiElement?
-        if (myElement is io.github.intellij.dlanguage.psi.DlangIdentifier) {
+        if (myElement is DlangIdentifier) {
             element = myElement.setName(newName)
             return element
         }
@@ -299,6 +273,7 @@ class DReference(element: PsiNamedElement, textRange: TextRange) : PsiReferenceB
 
     companion object {
         val EMPTY_RESOLVE_RESULT = arrayOfNulls<ResolveResult>(0)
+        val EMPTY_ARRAY = emptyArray<Any>()
         val NAME_NOT_FOUND_STRING: String = ""
     }
 }
